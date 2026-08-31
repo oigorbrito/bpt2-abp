@@ -7,8 +7,8 @@ Snapshot volatile only.
 ## In flight
 
 - Wave `PRODUCT-WAVE-SELLER-OPS-01`: Seller inventory/readiness drill-down and queue work surface.
-- The wave is published on remote branch `chore/workflow-scoped-concurrency-166` and tracked by PR [#175](https://github.com/tihotm/bpt2-abp/pull/175).
-- Wave block completed locally:
+- The wave is merged into `origin/main` via PR [#175](https://github.com/tihotm/bpt2-abp/pull/175) at `341b3793186ec26474734440f823867e7b90a04b`.
+- Wave block completed and integrated:
   - inventory status queues now expose direct lifecycle actions where backend allows them;
   - listing edit surface now shows current lifecycle context and publish authority instead of an invented readiness checklist;
   - publication readiness is reduced to actual mutability/canonical-vehicle authority.
@@ -20,24 +20,22 @@ Snapshot volatile only.
 
 | ID | Blocker | Affects | Evidence | Required unblock | Can wave continue? |
 | --- | --- | --- | --- | --- | --- |
-| BR-01 | `npm ci` fails in `public-web` | frontend validation | `EACCES` on registry fetch and `EPERM` cleanup in existing `node_modules`, even after deleting local `node_modules` once | clean writable install state and registry access | yes |
-| BR-02 | `npm run check` unavailable in current `public-web` environment | frontend validation | `eslint` not available before/without successful dependency restore | dependency restore | yes |
-| BR-03 | Browser/DB runtime unavailable on this machine | end-to-end Seller smoke | previous documented fresh-environment probe remains blocked by missing disposable runtime | PostgreSQL-capable runtime / browser smoke env | yes |
-| BR-04 | GitHub PR inspection is inconsistent through `gh` GraphQL | remote integration follow-through | `gh pr view` and `gh pr checks` returned `HTTP 401`, while REST `gh api repos/tihotm/bpt2-abp/pulls/175` succeeds | stable GitHub API access or direct web review | yes |
+| BR-01 | Browser/DB runtime unavailable on this machine | end-to-end Seller smoke | previous documented fresh-environment probe remains blocked by missing disposable runtime | PostgreSQL-capable runtime / browser smoke env | yes |
+| BR-02 | `#160` main-branch integration policy remains administrative | repository administration | open issue #160 and branch-protection/ruleset enforcement remain unresolved | repository administration authority | yes |
 
 ## Immediate blocker
 
-Frontend package checks cannot complete in this environment because `public-web` dependencies are not installed, so `eslint` is unavailable locally.
+Repo-internal work is integrated. Remaining validation is external: browser/DB smoke and repository administration.
 
 ## Remote integration state
 
 - remote repository moved to `tihotm/bpt2-abp`;
-- PR [#175](https://github.com/tihotm/bpt2-abp/pull/175) exists and is open;
-- `main` on the remote remains at the reconstruction baseline until PR #175 merges.
+- PR [#175](https://github.com/tihotm/bpt2-abp/pull/175) merged successfully;
+- `main` on the remote now includes the Seller Operations wave and the reconstructed baseline.
 
 ## Next closure item
 
-Continue the Seller Operations wave with any remaining repo-internal checkable gap, otherwise keep the current wave in `COMPLETE_EXTERNAL_VALIDATION_PENDING` while remote review/CI finalizes.
+Keep the current wave in `COMPLETE_EXTERNAL_VALIDATION_PENDING` while the remaining external runtime smoke and `#160` administrative blocker finalize.
 
 ## Canonical links
 
