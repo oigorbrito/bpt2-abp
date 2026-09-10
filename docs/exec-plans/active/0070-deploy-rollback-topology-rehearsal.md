@@ -105,6 +105,19 @@ Para selecionar arquitetura ao final da série 0062–0070, o 0070 só pode cont
 - ausência de latência de registry/network/deployment platform;
 - resultados não medem esforço cognitivo nem produtividade humana.
 
+## Progress log
+
+- 2026-09-10: `main` canônico confirmado em `2a6d3b4a0578a722ef5f0d7cef8dfa748d8401a6` após transferência do repositório para `oigorbrito/bpt2-abp`.
+- 2026-09-10: protocolo pré-registrado antes dos resultados; draft PR #195 aberto.
+- 2026-09-10: Harness identificou apenas ausência das seções obrigatórias `Progress log` e `Decision log`; método, cenários e thresholds não foram alterados.
+
+## Decision log
+
+- 2026-09-10: separar repository, integration e deployment topology para evitar a hipótese inválida `monorepo = deploy atômico`.
+- 2026-09-10: usar `VehicleRefDto` como superfície real de contrato, mantendo alterações experimentais somente em snapshots temporários.
+- 2026-09-10: compilar a assembly `BomPraTi.Catalog.Contracts` no workload breaking para medir validade do artifact de contrato sem introduzir falha incidental no host completo.
+- 2026-09-10: classificar troca de manifests/pointers como `REHEARSED_DEPLOYMENT`, nunca como deployment de produção observado.
+
 ## Critérios de aceite
 
 - protocolo registrado antes dos resultados;
