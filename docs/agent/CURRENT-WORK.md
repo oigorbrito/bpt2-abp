@@ -1,55 +1,60 @@
 # Current work
 
-Last verified: **2026-09-03**
+Last verified: **2026-09-10**
 
 Snapshot volatile only.
 
 ## In flight
 
-- Wave `PRODUCT-WAVE-LISTING-DECISION-SUPPORT-01`: public Listing detail decision support using canonical vehicle facts and current public actions.
-- The product slice and its remote runtime validation are integrated into `origin/main`.
-- Public Listing decision-support patch is in place:
-  - public Listing detail preserves safe return navigation;
-  - public Listing detail reinforces canonical vehicle identity with brand/model/generation/version/model year plus available opaque technical fields from the catalog;
-  - public Listing detail links explicitly to the Vehicle Hub as the canonical vehicle authority;
-  - public Seller context remains authorized and public-only.
-- Validation evidence for this slice:
-  - `npm run lint`, `npm run typecheck`, and `npm run build` passed for `public-web` during the product slice;
-  - PR #185 added the `BPT2 Listing Decision Support Runtime Gate` and its exact-head run `33761113685` passed on `66fb58623ef9b8fb2ee8f81b414dd885957bb3ad`;
-  - that run used PostgreSQL 17, applied a fresh database, seeded host/OpenIddict data and a canonical Vehicle fixture, built and started the production `public-web`, exercised a real published Listing through the API, and validated the server-rendered Listing detail over HTTP;
-  - rendered evidence covered the canonical-vehicle section, Vehicle Hub link, safe internal `returnTo`, and rejection of an external `returnTo` target.
-- Scope limit: this is real PostgreSQL + API + production Next.js SSR/HTTP validation. It is not browser-engine automation and does not claim client-side hydration or interactive-browser coverage.
-- Remote integration state:
-  - `main` includes the persistent runtime gate via PR #185 at `c692450a1cc7c45de7b7b5bf1723926d88aa481a`.
-- Current control-plane artifacts:
-  - [docs/baselines/POST_MVP_OPERATIONAL_BASELINE_V1.md](../baselines/POST_MVP_OPERATIONAL_BASELINE_V1.md)
-  - [docs/closure/POST_MVP_OPERATIONAL_CLOSURE_MATRIX.md](../closure/POST_MVP_OPERATIONAL_CLOSURE_MATRIX.md)
+- No product wave is currently active.
+- `PRODUCT-WAVE-LISTING-DECISION-SUPPORT-01` is complete for its defined product and SSR/HTTP runtime acceptance.
+- Repository-topology evidence series Plans 0062–0070 is complete.
+- Plan 0071 records the resulting architecture decision in ADR 0012.
+
+## Repository topology
+
+Current decision: **KEEP_MONOREPO** for the BPT2 backend + `public-web` repository topology.
+
+This is a bounded least-change decision under the measured BPT2 evidence, not a claim that monorepos are universally superior and not a requirement for atomic backend/frontend deployment.
+
+Key evidence:
+
+- split is mechanically build-feasible;
+- historical BPT2 work has non-trivial cross-boundary and contract coupling;
+- split did not demonstrate a material CI/critical-path advantage under preregistered thresholds;
+- raw cross-boundary lead-time association attenuated after size/scope adjustment;
+- controlled same-change and deploy/rollback rehearsals showed additional explicit integration/deployment boundaries for split;
+- breaking independent rollout required bridge/coordinated rollout in the Plan 0070 workload.
+
+Canonical decision: [`../adr/0012-repository-topology.md`](../adr/0012-repository-topology.md).
 
 ## Blocker register
 
-| ID | Blocker | Affects | Evidence | Required unblock | Can wave continue? |
+| ID | Blocker | Affects | Evidence | Required unblock | Can work continue? |
 | --- | --- | --- | --- | --- | --- |
-| BR-01 | Resolved for the defined remote SSR/HTTP runtime validation | Listing decision-support runtime smoke | PR #185 exact-head run `33761113685` passed with PostgreSQL 17 + real API + production `public-web` SSR | None for the measured SSR/HTTP acceptance boundary; browser-engine coverage would require a separately defined acceptance target | yes |
-| BR-02 | `#160` main-branch integration policy remains administrative | repository administration | open issue #160; 2026-09-03 verification still reports `main` unprotected and no repository ruleset | repository administration authority | yes |
+| BR-01 | Resolved for the defined remote SSR/HTTP runtime validation | Listing decision-support runtime smoke | PR #185 exact-head runtime validation passed with PostgreSQL 17 + real API + production `public-web` SSR | None for measured boundary | yes |
+| BR-02 | `#160` main-branch integration policy remains administrative unless remote state has changed | repository administration | last verified state had `main` unprotected and no repository ruleset | repository administration authority / current remote revalidation | yes |
 
 ## Immediate blocker
 
-No repo-internal or defined Listing decision-support runtime blocker remains. The remaining registered boundary is repository administration in #160.
+No repo-internal product blocker is registered here. Repository administration issue #160 remains a separate boundary until revalidated.
 
 ## Remote integration state
 
-- remote repository remains `tihotm/bpt2-abp`;
-- `main` includes the Listing decision-support product slice and its reproducible runtime gate.
+- canonical remote repository: `oigorbrito/bpt2-abp`;
+- previous `tihotm/bpt2-abp` location redirects to the canonical repository;
+- repository-topology studies through Plan 0070 are integrated into `main`.
 
 ## Next closure item
 
-Treat `PRODUCT-WAVE-LISTING-DECISION-SUPPORT-01` as complete for its currently defined product and SSR/HTTP runtime acceptance. Keep #160 separate as an administrative repository-control item.
+After Plan 0071 is integrated, do not create another architecture benchmark without a new material hypothesis or an ADR 0012 reopen trigger. Reinspect product/quality/issue state and choose the next real product gap by evidence.
 
 ## Canonical links
 
 - [docs/PRODUCT.md](../PRODUCT.md)
 - [docs/QUALITY.md](../QUALITY.md)
 - [docs/LOCAL-DEVELOPMENT.md](../LOCAL-DEVELOPMENT.md)
+- [ADR 0012 — Repository topology](../adr/0012-repository-topology.md)
 - [docs/baselines/POST_MVP_OPERATIONAL_BASELINE_V1.md](../baselines/POST_MVP_OPERATIONAL_BASELINE_V1.md)
 - [docs/closure/POST_MVP_OPERATIONAL_CLOSURE_MATRIX.md](../closure/POST_MVP_OPERATIONAL_CLOSURE_MATRIX.md)
 
@@ -60,7 +65,6 @@ Treat `PRODUCT-WAVE-LISTING-DECISION-SUPPORT-01` as complete for its currently d
 - discovery baseline: [`../audits/2026-08-29-advanced-discovery-baseline.md`](../audits/2026-08-29-advanced-discovery-baseline.md);
 - typo scoring: [`../audits/2026-08-30-discovery-typo-scoring-comparison.md`](../audits/2026-08-30-discovery-typo-scoring-comparison.md);
 - metamorphic: [`../audits/2026-08-30-discovery-metamorphic-typo-robustness.md`](../audits/2026-08-30-discovery-metamorphic-typo-robustness.md);
-- workflow concurrency: [`../audits/2026-08-30-workflow-concurrency-probe.md`](../audits/2026-08-30-workflow-concurrency-probe.md);
 - generated facts: [`../generated/repository-facts.md`](../generated/repository-facts.md).
 
 ## Update rule
