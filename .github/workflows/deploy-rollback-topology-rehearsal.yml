@@ -1,0 +1,52 @@
+name: BPT2 Deploy Rollback Topology Rehearsal
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/rehearse-deploy-rollback-topology.py'
+      - 'docs/exec-plans/**/0070-deploy-rollback-topology-rehearsal.md'
+      - '.github/workflows/deploy-rollback-topology-rehearsal.yml'
+      - 'docs/generated/repository-facts.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-rollback-topology:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.x'
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.13.0'
+
+      - name: Syntax check experiment
+        run: python3 -m py_compile scripts/rehearse-deploy-rollback-topology.py
+
+      - name: Execute deploy rollback rehearsal
+        run: |
+          mkdir -p artifacts
+          python3 scripts/rehearse-deploy-rollback-topology.py \
+            --output artifacts/deploy-rollback-topology-rehearsal.json
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: deploy-rollback-topology-rehearsal
+          path: artifacts/deploy-rollback-topology-rehearsal.json
+          if-no-files-found: error
