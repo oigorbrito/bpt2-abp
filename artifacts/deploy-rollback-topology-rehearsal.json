@@ -1,0 +1,270 @@
+{
+  "schema": "bpt2.deploy-rollback-topology-rehearsal.v1",
+  "classification": {
+    "execution": "REHEARSED",
+    "deployment": "MODELED"
+  },
+  "states": [
+    {
+      "backend": "BO",
+      "frontend": "FO",
+      "compatible": {
+        "compatible": true,
+        "breaking": true
+      }
+    },
+    {
+      "backend": "BN",
+      "frontend": "FO",
+      "compatible": {
+        "compatible": true,
+        "breaking": false
+      }
+    },
+    {
+      "backend": "BO",
+      "frontend": "FN",
+      "compatible": {
+        "compatible": true,
+        "breaking": false
+      }
+    },
+    {
+      "backend": "BN",
+      "frontend": "FN",
+      "compatible": {
+        "compatible": true,
+        "breaking": true
+      }
+    }
+  ],
+  "thresholds": {
+    "material_temporal_difference_percent": 20
+  },
+  "rows": [
+    {
+      "topology": "combined",
+      "change": "compatible",
+      "operation": "rollout",
+      "start": [
+        "BO",
+        "FO"
+      ],
+      "target": [
+        "BN",
+        "FN"
+      ],
+      "transitions": [
+        [
+          "BN",
+          "FN"
+        ]
+      ],
+      "compatible_intermediates": 1,
+      "incompatible_intermediates": 0,
+      "bridge_required": false,
+      "contract_handoffs": 0,
+      "checkpoints": 1,
+      "coordination_units": 1,
+      "ordering": "atomic"
+    },
+    {
+      "topology": "combined",
+      "change": "compatible",
+      "operation": "rollback",
+      "start": [
+        "BN",
+        "FN"
+      ],
+      "target": [
+        "BO",
+        "FO"
+      ],
+      "transitions": [
+        [
+          "BO",
+          "FO"
+        ]
+      ],
+      "compatible_intermediates": 1,
+      "incompatible_intermediates": 0,
+      "bridge_required": false,
+      "contract_handoffs": 0,
+      "checkpoints": 1,
+      "coordination_units": 1,
+      "ordering": "atomic"
+    },
+    {
+      "topology": "combined",
+      "change": "breaking",
+      "operation": "rollout",
+      "start": [
+        "BO",
+        "FO"
+      ],
+      "target": [
+        "BN",
+        "FN"
+      ],
+      "transitions": [
+        [
+          "BN",
+          "FN"
+        ]
+      ],
+      "compatible_intermediates": 1,
+      "incompatible_intermediates": 0,
+      "bridge_required": false,
+      "contract_handoffs": 0,
+      "checkpoints": 1,
+      "coordination_units": 1,
+      "ordering": "atomic"
+    },
+    {
+      "topology": "combined",
+      "change": "breaking",
+      "operation": "rollback",
+      "start": [
+        "BN",
+        "FN"
+      ],
+      "target": [
+        "BO",
+        "FO"
+      ],
+      "transitions": [
+        [
+          "BO",
+          "FO"
+        ]
+      ],
+      "compatible_intermediates": 1,
+      "incompatible_intermediates": 0,
+      "bridge_required": false,
+      "contract_handoffs": 0,
+      "checkpoints": 1,
+      "coordination_units": 1,
+      "ordering": "atomic"
+    },
+    {
+      "topology": "split",
+      "change": "compatible",
+      "operation": "rollout",
+      "start": [
+        "BO",
+        "FO"
+      ],
+      "target": [
+        "BN",
+        "FN"
+      ],
+      "transitions": [
+        [
+          "BN",
+          "FO"
+        ],
+        [
+          "BN",
+          "FN"
+        ]
+      ],
+      "compatible_intermediates": 2,
+      "incompatible_intermediates": 0,
+      "bridge_required": false,
+      "contract_handoffs": 1,
+      "checkpoints": 2,
+      "coordination_units": 2,
+      "ordering": "backend/frontend"
+    },
+    {
+      "topology": "split",
+      "change": "compatible",
+      "operation": "rollback",
+      "start": [
+        "BN",
+        "FN"
+      ],
+      "target": [
+        "BO",
+        "FO"
+      ],
+      "transitions": [
+        [
+          "BO",
+          "FN"
+        ],
+        [
+          "BO",
+          "FO"
+        ]
+      ],
+      "compatible_intermediates": 2,
+      "incompatible_intermediates": 0,
+      "bridge_required": false,
+      "contract_handoffs": 1,
+      "checkpoints": 2,
+      "coordination_units": 2,
+      "ordering": "backend/frontend"
+    },
+    {
+      "topology": "split",
+      "change": "breaking",
+      "operation": "rollout",
+      "start": [
+        "BO",
+        "FO"
+      ],
+      "target": [
+        "BN",
+        "FN"
+      ],
+      "transitions": [
+        [
+          "BO",
+          "FN"
+        ],
+        [
+          "BN",
+          "FN"
+        ]
+      ],
+      "compatible_intermediates": 1,
+      "incompatible_intermediates": 1,
+      "bridge_required": true,
+      "contract_handoffs": 1,
+      "checkpoints": 2,
+      "coordination_units": 2,
+      "ordering": "backend/frontend"
+    },
+    {
+      "topology": "split",
+      "change": "breaking",
+      "operation": "rollback",
+      "start": [
+        "BN",
+        "FN"
+      ],
+      "target": [
+        "BO",
+        "FO"
+      ],
+      "transitions": [
+        [
+          "BN",
+          "FO"
+        ],
+        [
+          "BO",
+          "FO"
+        ]
+      ],
+      "compatible_intermediates": 1,
+      "incompatible_intermediates": 1,
+      "bridge_required": true,
+      "contract_handoffs": 1,
+      "checkpoints": 2,
+      "coordination_units": 2,
+      "ordering": "backend/frontend"
+    }
+  ]
+}
