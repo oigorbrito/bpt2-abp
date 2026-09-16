@@ -50,12 +50,32 @@ export default function FavoriteButton({ listingId }: { listingId: string }) {
     }
   }
 
+  const buttonLabel = busy
+    ? favorite
+      ? "Removendo dos favoritos…"
+      : "Salvando nos favoritos…"
+    : favorite
+      ? "Remover dos favoritos"
+      : authenticated
+        ? "Salvar nos favoritos"
+        : "Entrar e salvar nos favoritos";
+
   return (
     <div>
-      <button className="secondary-action" disabled={busy} type="button" onClick={toggle}>
-        {favorite ? "Remover dos favoritos" : authenticated ? "Salvar nos favoritos" : "Entrar e salvar nos favoritos"}
+      <button
+        aria-busy={busy}
+        className="secondary-action"
+        disabled={busy}
+        type="button"
+        onClick={toggle}
+      >
+        {buttonLabel}
       </button>
-      {error ? <p className="seller-auth-error">{error}</p> : null}
+      {error ? (
+        <p className="seller-auth-error" role="alert">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }
