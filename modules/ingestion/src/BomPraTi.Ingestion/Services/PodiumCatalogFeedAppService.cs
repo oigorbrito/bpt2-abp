@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Entities;
+using Volo.Abp.Validation;
 
 namespace BomPraTi.Ingestion.Services;
 
@@ -38,11 +39,11 @@ public class PodiumCatalogFeedAppService : IPodiumCatalogFeedAppService, ITransi
 
         if (!string.Equals(input.ContractVersion, SupportedContractVersion, StringComparison.Ordinal))
         {
-            throw new NotSupportedException(
+            throw new AbpValidationException(
                 $"Unsupported Podium catalog contract version '{input.ContractVersion}'. Expected '{SupportedContractVersion}'.");
         }
 
-        var entity = input.Entity ?? throw new ArgumentException("Podium entity is required.", nameof(input));
+        var entity = input.Entity ?? throw new AbpValidationException("Podium entity is required.");
         var canonicalExternalId = RequireText(entity.Id, 256, "entity.id");
         var make = RequireText(entity.Make, 128, "entity.make");
         var model = RequireText(entity.Model, 128, "entity.model");
@@ -201,7 +202,7 @@ public class PodiumCatalogFeedAppService : IPodiumCatalogFeedAppService, ITransi
             return from.Value;
         }
 
-        throw new NotSupportedException(
+        throw new AbpValidationException(
             "Podium model-year ranges cannot be projected into the current scalar BPT2 Vehicle.ModelYear without losing semantics.");
     }
 
@@ -282,12 +283,12 @@ public class PodiumCatalogFeedAppService : IPodiumCatalogFeedAppService, ITransi
         var trimmed = value?.Trim();
         if (string.IsNullOrWhiteSpace(trimmed))
         {
-            throw new ArgumentException($"Podium field '{field}' is required.", field);
+            throw new AbpValidationException($"Podium field '{field}' is required.");
         }
 
         if (trimmed.Length > maxLength)
         {
-            throw new ArgumentException($"Podium field '{field}' cannot exceed {maxLength} characters.", field);
+            throw new AbpValidationException($"Podium field '{field}' cannot exceed {maxLength} characters.");
         }
 
         return trimmed;
@@ -303,7 +304,7 @@ public class PodiumCatalogFeedAppService : IPodiumCatalogFeedAppService, ITransi
         var trimmed = value.Trim();
         if (trimmed.Length > maxLength)
         {
-            throw new ArgumentException($"Podium field '{field}' cannot exceed {maxLength} characters.", field);
+            throw new AbpValidationException($"Podium field '{field}' cannot exceed {maxLength} characters.");
         }
 
         return trimmed;
@@ -318,7 +319,7 @@ public class PodiumCatalogFeedAppService : IPodiumCatalogFeedAppService, ITransi
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            throw new ArgumentException($"Podium field '{field}' is required.", field);
+            throw new AbpValidationException($"Podium field '{field}' is required.");
         }
 
         return value;

@@ -14,6 +14,7 @@ using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Modularity;
 using Volo.Abp.Security.Claims;
 using Volo.Abp.Uow;
+using Volo.Abp.Validation;
 
 static void Require(bool condition, string message)
 {
@@ -356,6 +357,10 @@ static async Task ExpectNotSupportedAsync(
         });
     }
     catch (NotSupportedException)
+    {
+        rejected = true;
+    }
+    catch (AbpValidationException)
     {
         rejected = true;
     }

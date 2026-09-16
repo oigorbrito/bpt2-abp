@@ -79,6 +79,14 @@ status="$(request POST "$ROUTE" "$USER_TOKEN" '{"contractVersion":"2.0","entity"
 [[ "$status" == 403 ]] || { echo "Non-admin import expected 403 got $status" >&2; cat "$RESPONSE" >&2; exit 1; }
 echo 'PODIUM_CATALOG_FEED_NON_ADMIN_BLOCKED: PASS'
 
+status="$(request POST "$ROUTE" "$ADMIN_TOKEN" '{"contractVersion":"2.0","entity":{"id":"podium-invalid-variant","make":"Toyota","model":"Corolla","variant":""},"redirectsFrom":[]}')"
+[[ "$status" == 400 ]] || { echo "Missing variant expected 400 got $status" >&2; cat "$RESPONSE" >&2; exit 1; }
+echo 'PODIUM_CATALOG_FEED_INVALID_VARIANT: PASS'
+
+status="$(request POST "$ROUTE" "$ADMIN_TOKEN" '{"contractVersion":"2.0","entity":{"id":"podium-invalid-range","make":"Toyota","model":"Corolla","variant":"XEi","model_year_from":2024,"model_year_to":2025},"redirectsFrom":[]}')"
+[[ "$status" == 400 ]] || { echo "Unrepresentable model-year range expected 400 got $status" >&2; cat "$RESPONSE" >&2; exit 1; }
+echo 'PODIUM_CATALOG_FEED_INVALID_MODEL_YEAR_RANGE: PASS'
+
 SUFFIX="$(python3 -c 'import uuid; print(uuid.uuid4().hex[:10])')"
 CANONICAL="podium:${SUFFIX}"
 REDIRECT="podium-old:${SUFFIX}"
