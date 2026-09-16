@@ -1,113 +1,92 @@
 # Plan 0073 — Podium7 ↔ BPT2 topology rehearsal
 
-Status: **ATIVO / EXECUÇÃO LOCAL PENDENTE**
+Status: **ATIVO / EXECUÇÃO CONTROLADA PENDENTE**
 
 Issue: #207
 
 ## Outcome
 
-Executar o experimento controlado que falta no estudo #205 comparando:
-
-- dois checkouts/repositórios separados;
-- snapshot descartável de monorepo polyglot;
-
-com os mesmos estados de código e sem alterar ownership, runtime, banco ou linguagem.
+Executar o experimento controlado que falta no estudo #205 comparando dois checkouts/repositórios separados com um snapshot descartável de monorepo polyglot, usando os mesmos estados de código e sem alterar ownership, runtime, banco ou linguagem.
 
 ## Heads congelados
 
 - BPT2 PR #204: `cf08bebae8efdf1904f25355c540ca63478b6573`
 - Podium7 PR #319: `939f0452a9c6d3558e2951a48fe8291796645c33`
 
-O harness falha por default se os checkouts não estiverem nesses SHAs. `--allow-head-drift` só pode ser usado quando a nova revisão tiver sido registrada explicitamente no #207.
+O harness falha por default se os checkouts não estiverem nesses SHAs. `--allow-head-drift` não deve ser usado para contornar checkout incorreto.
 
-## Harness
+## Harness principal
 
 `scripts/rehearse-podium7-bpt2-topology.py`
 
-O script:
+O harness valida os SHAs, cria árvores temporárias para `split` e `monorepo`, aplica apenas marcadores efêmeros em arquivos de teste, mede `podium_only`, `bpt2_only` e `shared_integration`, alterna ordem por repetição, executa os gates reais e exige o E2E HTTP real quando `--e2e` está habilitado. Ele emite artifact JSON machine-readable e retorna não-zero se faltarem pares válidos ou E2E.
 
-1. valida os SHAs dos dois checkouts;
-2. cria árvores temporárias e descartáveis para os tratamentos `split` e `monorepo`;
-3. não altera os checkouts de origem;
-4. aplica apenas marcadores efêmeros em arquivos de teste para representar as classes de mudança sem introduzir feature artificial;
-5. mede três classes: `podium_only`, `bpt2_only`, `shared_integration`;
-6. alterna a ordem dos tratamentos a cada repetição;
-7. executa gates reais de Podium e BPT2;
-8. no BPT2, exige tanto build quanto execução da fixture focada;
-9. no caso compartilhado, com `--e2e`, executa o `scripts/bpt2_http_e2e.py` real do Podium contra host BPT2 real;
-10. emite artifact JSON machine-readable;
-11. retorna código diferente de zero se faltarem pares válidos ou se o E2E real não tiver sido habilitado.
+BPT2 exige tanto build quanto execução da fixture focada. Podium executa `tests.test_bpt2_adapter`. A classe compartilhada executa também `scripts/bpt2_http_e2e.py` contra host BPT2/PostgreSQL real.
 
-## Runner PowerShell
+## Isolamento do bootstrap de migrations
+
+`scripts/fresh-migration-gate.sh` gera arquivos de migration. Por isso nenhum runner pode executá-lo no checkout BPT2 usado como fonte da medição.
+
+Os runners agora criam um **worktree detached descartável** no SHA BPT2 congelado exclusivamente para gerar/aplicar migrations. Depois confirmam novamente que os checkouts BPT2 e Podium7 medidos continuam limpos. Isso preserva a identidade exata do source state medido.
+
+## Runner Windows / Codex
 
 `scripts/run-podium7-bpt2-topology-rehearsal.ps1`
 
-O wrapper Windows/Codex:
+O wrapper:
 
-- valida novamente os heads congelados;
-- sobe PostgreSQL 17 descartável em Docker;
-- aplica `scripts/fresh-migration-gate.sh` no checkout BPT2 congelado;
-- compila e inicia o host BPT2 real;
-- aguarda Swagger responder;
-- obtém token admin via PowerShell, evitando o problema já reproduzido de conversão de rota pelo MSYS;
-- executa uma prova E2E direta antes da medição pareada;
-- executa o harness com `--e2e`;
-- grava o artifact principal e um segundo JSON com tempos de bootstrap de PostgreSQL/migrations/build/host;
-- remove host e container no `finally`.
+- valida heads e limpeza dos dois checkouts;
+- cria worktree descartável para migrations;
+- sobe PostgreSQL 17 em Docker;
+- aplica o fresh-migration gate fora do checkout medido;
+- compila/inicia o host BPT2;
+- obtém token admin em processo;
+- prova o E2E antes do benchmark;
+- executa 3×3 pares com `--e2e`;
+- grava artifact principal e `.bootstrap.json`;
+- confirma que os checkouts medidos continuam limpos;
+- remove host, container e worktree no `finally`.
 
-O token é mantido apenas em variável de ambiente/processo durante a execução e não é escrito no artifact.
+## Runner Linux / VPS
 
-## Comandos focais
+`scripts/run-podium7-bpt2-topology-rehearsal-vps.sh`
 
-Podium:
+Esse runner é a fronteira recomendada para uma VPS Ubuntu. Ele reproduz o mesmo protocolo sem depender de PowerShell e exige:
 
-```text
-python -m unittest tests.test_bpt2_adapter -v
+- `git`;
+- `docker` com daemon acessível ao usuário;
+- `.NET SDK 10` / `dotnet`;
+- `python3`;
+- `bash`;
+- `curl`;
+- dois checkouts limpos exatamente nos SHAs congelados.
+
+Credenciais não são commitadas. Antes da execução, exportar apenas no ambiente da sessão:
+
+```bash
+export BPT2_ADMIN_USER='<test-admin-user>'
+export BPT2_ADMIN_PASSWORD='<test-admin-password>'
 ```
 
-BPT2:
+Execução:
 
-```text
-dotnet build tests/BomPraTi.PodiumCatalogFeedFixture/BomPraTi.PodiumCatalogFeedFixture.csproj --configuration Release --nologo
-dotnet run --project tests/BomPraTi.PodiumCatalogFeedFixture/BomPraTi.PodiumCatalogFeedFixture.csproj --configuration Release --no-build
+```bash
+bash scripts/run-podium7-bpt2-topology-rehearsal-vps.sh \
+  --bpt2-root /srv/bpt2-cf08beb \
+  --podium-root /srv/podium7-939f045 \
+  --pairs 3 \
+  --output artifacts/podium7-bpt2-topology-rehearsal.json
 ```
 
-Shared E2E:
+Por padrão o host BPT2 usa `5110` e PostgreSQL é publicado em `55432`, reduzindo colisão com uma instância local padrão em `5432`. Ambos podem ser alterados por argumentos/env.
 
-```text
-python scripts/bpt2_http_e2e.py
-```
+## Perfil VPS recomendado para esta medição
 
-## Execução de referência
+Piso operacional: **4 vCPU, 8 GB RAM e 80 GB SSD/NVMe**. Para reduzir pressão de memória/cache durante repetições e builds, **12–16 GB RAM** é preferível. A capacidade da máquina deve permanecer estável durante todos os pares; não misturar resultados de VPSs com tamanhos diferentes no mesmo conjunto de evidência.
 
-Com dois worktrees detached nos heads congelados, executar a partir do checkout do PR #208:
+## Métricas
 
-```powershell
-pwsh scripts/run-podium7-bpt2-topology-rehearsal.ps1 `
-  -Bpt2Root <path-bpt2-at-cf08beb> `
-  -PodiumRoot <path-podium7-at-939f045> `
-  -Pairs 3 `
-  -Output artifacts/podium7-bpt2-topology-rehearsal.json
-```
-
-O runner exige `git`, `docker`, `dotnet`, `python` e `bash`. O Bash é usado somente pelo fresh-migration gate existente; token e requests HTTP do setup ficam em PowerShell.
-
-## Boundary de execução Codex
-
-Antes de medir:
-
-1. refetch dos dois repositórios;
-2. criar worktrees/checkouts detached exatamente nos SHAs congelados;
-3. confirmar `git status --short` vazio;
-4. executar o wrapper PowerShell do head atual do PR #208;
-5. reter `podium7-bpt2-topology-rehearsal.json` e o artifact `.bootstrap.json` correspondente;
-6. registrar stdout final, heads e qualquer exclusão/ameaça à validade.
-
-Não usar `--allow-head-drift` apenas para contornar checkout incorreto. Se algum PR tiver mudado de head, parar a medição, registrar a nova revisão no #207 e decidir se a evidência anterior continua comparável.
-
-## Métricas congeladas
-
-Por classe e tratamento, são observadas/temporizadas:
+Observadas/temporizadas por classe e tratamento:
 
 - materialização local do snapshot;
 - patch efêmero;
@@ -115,14 +94,15 @@ Por classe e tratamento, são observadas/temporizadas:
 - execução E2E quando aplicável;
 - total compute.
 
-O runner registra separadamente bootstrap de:
+Bootstrap registrado separadamente:
 
 - PostgreSQL;
 - migrations;
 - build do host;
-- readiness do host.
+- readiness do host;
+- tempo total do wrapper.
 
-Separadamente, são **modeladas e pré-registradas**, não medidas em tempo:
+Pré-registradas/modeladas, não medidas em horas:
 
 - integration transactions;
 - handoffs;
@@ -130,9 +110,7 @@ Separadamente, são **modeladas e pré-registradas**, não medidas em tempo:
 - CI surfaces;
 - rollback units.
 
-Essas contagens estruturais aparecem no artifact sob `modeled_structural`. Não são evidência de horas, produtividade ou esforço cognitivo.
-
-Diferença temporal só é material a partir de `20%` de delta mediano absoluto.
+Diferença temporal só é material a partir de `20%` de delta mediano absoluto. Contagens estruturais não são developer-hours.
 
 ## Path-scoped model
 
@@ -142,15 +120,15 @@ Diferença temporal só é material a partir de `20%` de delta mediano absoluto.
 | `bpt2_only` | não | sim | não |
 | `shared_integration` | sim | sim | sim |
 
-Esse roteamento mede a propriedade necessária para um monorepo polyglot: mudanças isoladas não devem pagar suites do outro bounded context; mudanças compartilhadas devem executar ambos + E2E.
+Mudanças isoladas não devem pagar suites do outro bounded context; mudanças compartilhadas devem executar ambos + E2E.
 
-## Limites do experimento
+## Limites
 
-- Local/controlled execution não mede timing do GitHub-hosted Actions.
-- A materialização usa cópia local de ambos os estados exatos; não mede clone remoto/rede.
-- O bootstrap é medido uma vez por execução do wrapper e fica fora das repetições pareadas; não deve ser atribuído diferencialmente a uma topologia sem novo tratamento controlado.
-- O snapshot monorepo é colocalização de source trees; deployment e version compatibility continuam independentes.
-- Os marcadores efêmeros servem para roteamento/seleção dos gates; não representam uma feature de produto.
+- VPS/local execution não mede timing do GitHub-hosted Actions.
+- Materialização usa cópia local, não clone remoto/rede.
+- Bootstrap é medido uma vez e fica fora das repetições pareadas; não deve ser atribuído diferencialmente a uma topologia.
+- O snapshot monorepo é colocalização de source trees; deployment/version compatibility continuam independentes.
+- Marcadores efêmeros medem roteamento/seleção de gates, não uma feature de produto.
 - Contagens estruturais são modelo pré-registrado, não esforço observado.
 
 ## Acceptance
@@ -158,8 +136,9 @@ Esse roteamento mede a propriedade necessária para um monorepo polyglot: mudan�
 - [ ] 3/3 pares válidos para `podium_only`;
 - [ ] 3/3 pares válidos para `bpt2_only`;
 - [ ] 3/3 pares válidos para `shared_integration` com `--e2e`;
-- [ ] BPT2 focused fixture executa e passa em todos os tratamentos aplicáveis;
+- [ ] BPT2 fixture executa e passa em todos os tratamentos aplicáveis;
 - [ ] criação/correção/redirect/replay/same VehicleId continuam PASS;
+- [ ] checkouts medidos permanecem limpos;
 - [ ] artifact JSON principal retido;
 - [ ] bootstrap artifact retido;
 - [ ] resultado incorporado ao #205;
