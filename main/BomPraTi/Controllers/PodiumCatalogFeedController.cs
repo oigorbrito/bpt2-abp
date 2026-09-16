@@ -1,5 +1,6 @@
 using BomPraTi.Ingestion.Contracts;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BomPraTi.Controllers;
@@ -17,6 +18,8 @@ public sealed class PodiumCatalogFeedController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public Task<PodiumCatalogImportResultDto> ImportAsync(
         [FromBody] PodiumCatalogVehicleInput input,
         CancellationToken cancellationToken)
