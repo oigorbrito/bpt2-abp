@@ -119,6 +119,10 @@ try {
         excluded_from_paired_harness_timing=$true
     } | ConvertTo-Json -Depth 6 | Set-Content -Encoding UTF8 $bootstrapPath
 
+    $validator = Join-Path $PSScriptRoot 'validate-podium7-bpt2-topology-artifact.py'
+    python $validator $Output --bootstrap $bootstrapPath --pairs $Pairs
+    if ($LASTEXITCODE -ne 0) { throw "artifact validation failed with exit code $LASTEXITCODE" }
+
     Write-Host "TOPOLOGY_REHEARSAL: PASS"
     Write-Host "artifact=$Output"
     Write-Host "bootstrap=$bootstrapPath"
