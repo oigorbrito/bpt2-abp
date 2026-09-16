@@ -16,7 +16,8 @@ export async function POST(request: NextRequest) {
   }
 
   const contactUrl = whatsAppUrl(listing.seller.whatsAppNumber);
-  if (!contactUrl) {
+  // Security guardrail: Validate redirect URL prefix to prevent potential open redirect vulnerabilities.
+  if (!contactUrl || !contactUrl.startsWith("https://wa.me/")) {
     return new NextResponse("Contact unavailable", { status: 404 });
   }
 

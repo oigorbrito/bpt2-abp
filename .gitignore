@@ -1,0 +1,28 @@
+# Build and output directories
+[Bb]in/
+[Ob]j/
+out/
+.next/
+dist/
+build/
+
+# IDE / Editor files
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Python Caches
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# Environment / Secrets
+*.env.local
+*.secrets.json
