@@ -39,6 +39,27 @@ O artifact registra `touched_paths`, `derived_routing`, `path_routing_rules` e o
 
 O runner local cria um **worktree detached descartável** no SHA BPT2 congelado exclusivamente para gerar/aplicar migrations. Depois confirma novamente que os checkouts BPT2 e Podium7 medidos continuam limpos. Isso preserva a identidade exata do source state medido.
 
+## Validação fail-closed dos artifacts
+
+`scripts/validate-podium7-bpt2-topology-artifact.py`
+
+O validador executa depois que o runner grava o artifact principal e o `.bootstrap.json`. Ele rejeita qualquer conjunto que não satisfaça todos os invariantes abaixo:
+
+- schemas esperados;
+- heads exatamente congelados;
+- E2E real habilitado;
+- exatamente 3 pares por classe, sem duplicatas;
+- 3/3 pares válidos em cada classe;
+- `split` e `monorepo` aprovados em cada par;
+- `touched_paths` presentes;
+- `derived_routing` igual ao roteamento esperado para cada classe;
+- threshold temporal ainda em `20%`;
+- migrations executadas em worktree detached descartável;
+- checkouts medidos declarados limpos;
+- bootstrap separado do timing pareado.
+
+O runner só imprime `TOPOLOGY_REHEARSAL: PASS` depois de `PODIUM7_BPT2_TOPOLOGY_ARTIFACT: PASS`. Portanto um JSON parcial, sem E2E ou com head divergente não pode ser usado acidentalmente como evidência de aceite.
+
 ## Runner local Windows / Codex
 
 `scripts/run-podium7-bpt2-topology-rehearsal.ps1`
@@ -55,6 +76,7 @@ O wrapper:
 - executa 3×3 pares com `--e2e`;
 - grava artifact principal e `.bootstrap.json`;
 - confirma que os checkouts medidos continuam limpos;
+- valida os dois artifacts fail-closed;
 - remove host, container e worktree no `finally`.
 
 ## Execução de referência
@@ -79,8 +101,9 @@ Antes de medir:
 2. criar worktrees/checkouts detached exatamente nos SHAs congelados;
 3. confirmar `git status --short` vazio;
 4. executar o wrapper PowerShell do head atual do PR #208;
-5. reter `podium7-bpt2-topology-rehearsal.json` e o artifact `.bootstrap.json` correspondente;
-6. registrar stdout final, heads e qualquer exclusão/ameaça à validade.
+5. exigir no stdout `PODIUM7_BPT2_TOPOLOGY_ARTIFACT: PASS` e `TOPOLOGY_REHEARSAL: PASS`;
+6. reter `podium7-bpt2-topology-rehearsal.json` e o artifact `.bootstrap.json` correspondente;
+7. registrar stdout final, heads e qualquer exclusão/ameaça à validade.
 
 Não usar `--allow-head-drift` apenas para contornar checkout incorreto. Se algum PR tiver mudado de head, parar a medição, registrar a nova revisão no #207 e decidir se a evidência anterior continua comparável.
 
@@ -147,6 +170,7 @@ A opção de executar este mesmo experimento em VPS foi **deferida**. Ela não f
 - [ ] checkouts medidos permanecem limpos;
 - [ ] artifact JSON principal retido;
 - [ ] bootstrap artifact retido;
+- [ ] `PODIUM7_BPT2_TOPOLOGY_ARTIFACT: PASS` registrado;
 - [ ] resultado incorporado ao #205;
 - [ ] conclusão somente `KEEP_TWO_REPOS`, `MIGRATE_TO_POLYGLOT_MONOREPO` ou `INSUFFICIENT_EVIDENCE`.
 
