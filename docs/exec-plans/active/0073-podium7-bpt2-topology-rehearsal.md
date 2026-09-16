@@ -76,6 +76,23 @@ python scripts/rehearse-podium7-bpt2-topology.py \
 
 No Windows/PowerShell, usar a mesma invocação com caminhos nativos; não passar a rota HTTP por Bash/MSYS.
 
+## Boundary de execução Codex
+
+Antes de medir:
+
+1. refetch dos dois repositórios;
+2. criar worktrees/checkouts detached exatamente nos SHAs congelados;
+3. confirmar `git status --short` vazio;
+4. iniciar PostgreSQL descartável;
+5. aplicar as migrations exigidas pelo host BPT2 em banco vazio;
+6. iniciar o host BPT2 do SHA congelado;
+7. obter/injetar credencial de teste fora do repositório;
+8. provar uma execução direta de `scripts/bpt2_http_e2e.py` antes do benchmark pareado;
+9. executar o harness do head atual do PR #208;
+10. reter o artifact JSON e registrar tempo de bootstrap do host/PostgreSQL separadamente.
+
+Não usar `--allow-head-drift` apenas para contornar checkout incorreto. Se algum PR tiver mudado de head, parar a medição, registrar a nova revisão no #207 e decidir se a evidência anterior continua comparável.
+
 ## Métricas congeladas
 
 Por classe e tratamento, são observadas/temporizadas:
