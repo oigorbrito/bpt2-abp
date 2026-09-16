@@ -19,10 +19,16 @@ BPT2_PROBE = Path("tests/BomPraTi.PodiumCatalogFeedFixture/Program.cs")
 PODIUM_PROBE = Path("tests/test_bpt2_adapter.py")
 BPT2_FIXTURE = Path("tests/BomPraTi.PodiumCatalogFeedFixture/BomPraTi.PodiumCatalogFeedFixture.csproj")
 
-ROUTING = {
+EXPECTED_ROUTING = {
     "podium_only": {"podium": True, "bpt2": False, "e2e": False},
     "bpt2_only": {"podium": False, "bpt2": True, "e2e": False},
     "shared_integration": {"podium": True, "bpt2": True, "e2e": True},
+}
+
+PATH_ROUTING_RULES = {
+    "podium_prefix": "podium7/",
+    "bpt2_prefix": "bpt2/",
+    "shared_e2e_rule": "run E2E iff both podium7/ and bpt2/ paths changed",
 }
 
 # These counts are a preregistered workflow model, not elapsed-time observations.
@@ -73,18 +79,38 @@ def append_marker(path: Path, marker: str) -> float:
     return time.monotonic() - started
 
 
+def derive_routing(touched_paths: list[str]) -> dict[str, bool]:
+    podium = any(path.startswith(PATH_ROUTING_RULES["podium_prefix"]) for path in touched_paths)
+    bpt2 = any(path.startswith(PATH_ROUTING_RULES["bpt2_prefix"]) for path in touched_paths)
+    return {"podium": podium, "bpt2": bpt2, "e2e": podium and bpt2}
+
+
 def apply_change(change_class: str, bpt2: Path, podium: Path) -> dict[str, object]:
-    out: dict[str, object] = {"class": change_class, "bpt2_patch_s": 0.0, "podium_patch_s": 0.0}
+    out: dict[str, object] = {
+        "class": change_class,
+        "bpt2_patch_s": 0.0,
+        "podium_patch_s": 0.0,
+        "touched_paths": [],
+    }
+    touched: list[str] = out["touched_paths"]  # type: ignore[assignment]
     if change_class in {"podium_only", "shared_integration"}:
         out["podium_patch_s"] = append_marker(
             podium / PODIUM_PROBE,
             "\n# topology-rehearsal ephemeral marker; source tree is disposable\n",
         )
+        touched.append(f"podium7/{PODIUM_PROBE.as_posix()}")
     if change_class in {"bpt2_only", "shared_integration"}:
         out["bpt2_patch_s"] = append_marker(
             bpt2 / BPT2_PROBE,
             "\n// topology-rehearsal ephemeral marker; source tree is disposable\n",
         )
+        touched.append(f"bpt2/{BPT2_PROBE.as_posix()}")
+    route = derive_routing(touched)
+    if route != EXPECTED_ROUTING[change_class]:
+        raise RuntimeError(
+            f"path routing mismatch for {change_class}: touched={touched} derived={route} expected={EXPECTED_ROUTING[change_class]}"
+        )
+    out["derived_routing"] = route
     return out
 
 
@@ -111,12 +137,12 @@ def run_bpt2_gate(bpt2: Path) -> dict[str, object]:
 
 def run_class(
     change_class: str,
+    route: dict[str, bool],
     bpt2: Path,
     podium: Path,
     e2e_enabled: bool,
     e2e_env: dict[str, str],
 ) -> dict[str, object]:
-    route = ROUTING[change_class]
     result: dict[str, object] = {
         "class": change_class,
         "routing": route,
@@ -182,13 +208,24 @@ def treatment(
         bpt2_copy_s = copy_repo(source_bpt2, bpt2)
         podium_copy_s = copy_repo(source_podium, podium)
         patch = apply_change(change_class, bpt2, podium)
-        executed = run_class(change_class, bpt2, podium, e2e_enabled=e2e_enabled, e2e_env=e2e_env)
+        touched_paths = list(patch["touched_paths"])
+        route = dict(patch["derived_routing"])
+        executed = run_class(
+            change_class,
+            route,
+            bpt2,
+            podium,
+            e2e_enabled=e2e_enabled,
+            e2e_env=e2e_env,
+        )
 
         materialize_s = bpt2_copy_s + podium_copy_s
         patch_s = float(patch["bpt2_patch_s"]) + float(patch["podium_patch_s"])
         return {
             "name": name,
             "change_class": change_class,
+            "touched_paths": touched_paths,
+            "derived_routing": route,
             "materialize_s": materialize_s,
             "bpt2_materialize_s": bpt2_copy_s,
             "podium_materialize_s": podium_copy_s,
@@ -271,17 +308,19 @@ def main() -> int:
             observations.append(row)
 
     payload = {
-        "schema": "bpt2.podium7-topology-rehearsal.v1",
+        "schema": "bpt2.podium7-topology-rehearsal.v2",
         "heads": {"bpt2": bpt2_head, "podium7": podium_head},
         "expected_heads": {"bpt2": EXPECTED_BPT2_HEAD, "podium7": EXPECTED_PODIUM_HEAD},
         "pairs_per_class": args.pairs,
         "e2e_enabled": args.e2e,
-        "routing": ROUTING,
+        "path_routing_rules": PATH_ROUTING_RULES,
+        "expected_routing": EXPECTED_ROUTING,
         "structural_model": STRUCTURAL_MODEL,
         "observations": observations,
         "summary": {change_class: summarize(observations, change_class) for change_class in classes},
         "interpretation_rules": {
             "timing_materiality_pct": 20.0,
+            "routing_is_derived_from_touched_paths": True,
             "structural_counts_are_modeled_not_timed": True,
             "structural_counts_are_not_developer_hours": True,
             "monorepo_does_not_imply_shared_database_or_runtime": True,
@@ -293,7 +332,8 @@ def main() -> int:
             "materialization measures local copy/layout, not controlled remote clone/network latency",
             "one integration workload does not establish future change distribution",
             "same-repository source colocation does not remove deployment/version compatibility",
-            "ephemeral marker changes measure routing and orchestration rather than product behavior",
+            "ephemeral marker changes measure path routing and orchestration rather than product behavior",
+            "path routing is a controlled monorepo candidate rule, not evidence that an uncreated production workflow already has those filters",
             "modeled structural counts are preregistered workflow properties, not observed elapsed effort",
             "E2E requires an already-running BPT2 host and injected credential; host bootstrap time is not included by this harness",
         ],
