@@ -31,10 +31,10 @@ done
 [[ -s "$SWAGGER" ]] || { cat "$LOG" >&2; exit 1; }
 
 ROUTE='/api/integrations/podium/catalog/v1/vehicles'
-python3 - "$SWAGGER" "$ROUTE" <<'PY'
+python3 - "$SWAGGER" <<'PY'
 import json,sys
 paths=json.load(open(sys.argv[1],encoding='utf-8'))['paths']
-route=sys.argv[2]
+route='/api/integrations/podium/catalog/v1/vehicles'
 if route not in paths or 'post' not in paths[route]:
     raise SystemExit(f'Missing POST {route}; podium routes={[(p,list(v)) for p,v in paths.items() if "podium" in p.lower()]}')
 print('PODIUM_CATALOG_FEED_HTTP_ROUTE: PASS')
