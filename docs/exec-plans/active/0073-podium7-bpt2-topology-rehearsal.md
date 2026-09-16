@@ -1,6 +1,6 @@
 # Plan 0073 — Podium7 ↔ BPT2 topology rehearsal
 
-Status: **ATIVO / EXECUÇÃO CONTROLADA PENDENTE**
+Status: **ATIVO / EXECUÇÃO LOCAL CONTROLADA PENDENTE**
 
 Issue: #207
 
@@ -27,9 +27,9 @@ BPT2 exige tanto build quanto execução da fixture focada. Podium executa `test
 
 `scripts/fresh-migration-gate.sh` gera arquivos de migration. Por isso nenhum runner pode executá-lo no checkout BPT2 usado como fonte da medição.
 
-Os runners agora criam um **worktree detached descartável** no SHA BPT2 congelado exclusivamente para gerar/aplicar migrations. Depois confirmam novamente que os checkouts BPT2 e Podium7 medidos continuam limpos. Isso preserva a identidade exata do source state medido.
+O runner local cria um **worktree detached descartável** no SHA BPT2 congelado exclusivamente para gerar/aplicar migrations. Depois confirma novamente que os checkouts BPT2 e Podium7 medidos continuam limpos. Isso preserva a identidade exata do source state medido.
 
-## Runner Windows / Codex
+## Runner local Windows / Codex
 
 `scripts/run-podium7-bpt2-topology-rehearsal.ps1`
 
@@ -47,42 +47,32 @@ O wrapper:
 - confirma que os checkouts medidos continuam limpos;
 - remove host, container e worktree no `finally`.
 
-## Runner Linux / VPS
+## Execução de referência
 
-`scripts/run-podium7-bpt2-topology-rehearsal-vps.sh`
+Com dois worktrees detached nos heads congelados, executar a partir do checkout do PR #208:
 
-Esse runner é a fronteira recomendada para uma VPS Ubuntu. Ele reproduz o mesmo protocolo sem depender de PowerShell e exige:
-
-- `git`;
-- `docker` com daemon acessível ao usuário;
-- `.NET SDK 10` / `dotnet`;
-- `python3`;
-- `bash`;
-- `curl`;
-- dois checkouts limpos exatamente nos SHAs congelados.
-
-Credenciais não são commitadas. Antes da execução, exportar apenas no ambiente da sessão:
-
-```bash
-export BPT2_ADMIN_USER='<test-admin-user>'
-export BPT2_ADMIN_PASSWORD='<test-admin-password>'
+```powershell
+pwsh scripts/run-podium7-bpt2-topology-rehearsal.ps1 `
+  -Bpt2Root <path-bpt2-at-cf08beb> `
+  -PodiumRoot <path-podium7-at-939f045> `
+  -Pairs 3 `
+  -Output artifacts/podium7-bpt2-topology-rehearsal.json
 ```
 
-Execução:
+O runner exige `git`, `docker`, `dotnet`, `python` e `bash`. O Bash é usado somente pelo fresh-migration gate existente; token e requests HTTP do setup ficam em PowerShell.
 
-```bash
-bash scripts/run-podium7-bpt2-topology-rehearsal-vps.sh \
-  --bpt2-root /srv/bpt2-cf08beb \
-  --podium-root /srv/podium7-939f045 \
-  --pairs 3 \
-  --output artifacts/podium7-bpt2-topology-rehearsal.json
-```
+## Boundary de execução Codex
 
-Por padrão o host BPT2 usa `5110` e PostgreSQL é publicado em `55432`, reduzindo colisão com uma instância local padrão em `5432`. Ambos podem ser alterados por argumentos/env.
+Antes de medir:
 
-## Perfil VPS recomendado para esta medição
+1. refetch dos dois repositórios;
+2. criar worktrees/checkouts detached exatamente nos SHAs congelados;
+3. confirmar `git status --short` vazio;
+4. executar o wrapper PowerShell do head atual do PR #208;
+5. reter `podium7-bpt2-topology-rehearsal.json` e o artifact `.bootstrap.json` correspondente;
+6. registrar stdout final, heads e qualquer exclusão/ameaça à validade.
 
-Piso operacional: **4 vCPU, 8 GB RAM e 80 GB SSD/NVMe**. Para reduzir pressão de memória/cache durante repetições e builds, **12–16 GB RAM** é preferível. A capacidade da máquina deve permanecer estável durante todos os pares; não misturar resultados de VPSs com tamanhos diferentes no mesmo conjunto de evidência.
+Não usar `--allow-head-drift` apenas para contornar checkout incorreto. Se algum PR tiver mudado de head, parar a medição, registrar a nova revisão no #207 e decidir se a evidência anterior continua comparável.
 
 ## Métricas
 
@@ -124,12 +114,16 @@ Mudanças isoladas não devem pagar suites do outro bounded context; mudanças c
 
 ## Limites
 
-- VPS/local execution não mede timing do GitHub-hosted Actions.
+- Execução local controlada não mede timing do GitHub-hosted Actions.
 - Materialização usa cópia local, não clone remoto/rede.
 - Bootstrap é medido uma vez e fica fora das repetições pareadas; não deve ser atribuído diferencialmente a uma topologia.
 - O snapshot monorepo é colocalização de source trees; deployment/version compatibility continuam independentes.
 - Marcadores efêmeros medem roteamento/seleção de gates, não uma feature de produto.
 - Contagens estruturais são modelo pré-registrado, não esforço observado.
+
+## VPS
+
+A opção de executar este mesmo experimento em VPS foi **deferida**. Ela não faz parte do caminho ativo do Plan 0073 e não altera os critérios de aceite atuais.
 
 ## Acceptance
 
