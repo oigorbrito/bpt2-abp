@@ -25,6 +25,22 @@ ROUTING = {
     "shared_integration": {"podium": True, "bpt2": True, "e2e": True},
 }
 
+# These counts are a preregistered workflow model, not elapsed-time observations.
+# They must remain labeled as modeled in the output and must not be translated
+# into developer-hours or productivity claims.
+STRUCTURAL_MODEL = {
+    "split": {
+        "podium_only": {"integration_transactions": 1, "handoffs": 0, "checkpoints": 1, "ci_surfaces": 1, "rollback_units": 1},
+        "bpt2_only": {"integration_transactions": 1, "handoffs": 0, "checkpoints": 1, "ci_surfaces": 1, "rollback_units": 1},
+        "shared_integration": {"integration_transactions": 2, "handoffs": 1, "checkpoints": 3, "ci_surfaces": 3, "rollback_units": 2},
+    },
+    "monorepo": {
+        "podium_only": {"integration_transactions": 1, "handoffs": 0, "checkpoints": 1, "ci_surfaces": 1, "rollback_units": 1},
+        "bpt2_only": {"integration_transactions": 1, "handoffs": 0, "checkpoints": 1, "ci_surfaces": 1, "rollback_units": 1},
+        "shared_integration": {"integration_transactions": 1, "handoffs": 0, "checkpoints": 1, "ci_surfaces": 3, "rollback_units": 1},
+    },
+}
+
 
 def git_head(root: Path) -> str:
     return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
@@ -72,6 +88,27 @@ def apply_change(change_class: str, bpt2: Path, podium: Path) -> dict[str, objec
     return out
 
 
+def run_bpt2_gate(bpt2: Path) -> dict[str, object]:
+    build = timed(
+        ["dotnet", "build", str(BPT2_FIXTURE), "--configuration", "Release", "--nologo"],
+        bpt2,
+    )
+    run: dict[str, object]
+    if build["pass"]:
+        run = timed(
+            ["dotnet", "run", "--project", str(BPT2_FIXTURE), "--configuration", "Release", "--no-build"],
+            bpt2,
+        )
+    else:
+        run = {"seconds": 0.0, "returncode": None, "pass": False, "skipped": True}
+    return {
+        "build": build,
+        "fixture": run,
+        "seconds": float(build["seconds"]) + float(run["seconds"]),
+        "pass": bool(build["pass"] and run["pass"]),
+    }
+
+
 def run_class(
     change_class: str,
     bpt2: Path,
@@ -95,10 +132,7 @@ def run_class(
         )
 
     if route["bpt2"]:
-        result["bpt2"] = timed(
-            ["dotnet", "build", str(BPT2_FIXTURE), "--configuration", "Release", "--nologo"],
-            bpt2,
-        )
+        result["bpt2"] = run_bpt2_gate(bpt2)
 
     if route["e2e"]:
         if e2e_enabled:
@@ -108,7 +142,11 @@ def run_class(
         else:
             result["e2e"] = {"seconds": None, "returncode": None, "pass": False, "skipped": True}
 
-    stages = [value for key, value in result.items() if key in {"podium", "bpt2", "e2e"} and isinstance(value, dict)]
+    stages = [
+        value
+        for key, value in result.items()
+        if key in {"podium", "bpt2", "e2e"} and isinstance(value, dict)
+    ]
     seconds = [float(stage["seconds"]) for stage in stages if stage.get("seconds") is not None]
     result["compute_s"] = sum(seconds)
     result["pass"] = all(bool(stage.get("pass")) for stage in stages) if stages else False
@@ -137,18 +175,15 @@ def treatment(
         else:
             raise ValueError(name)
 
+        # Copy both exact source states in both treatments. The timing therefore measures
+        # local materialization/layout, not remote network-clone latency. Network checkout
+        # is deliberately excluded because this local rehearsal has no controlled remote
+        # cache/network treatment.
         bpt2_copy_s = copy_repo(source_bpt2, bpt2)
         podium_copy_s = copy_repo(source_podium, podium)
         patch = apply_change(change_class, bpt2, podium)
         executed = run_class(change_class, bpt2, podium, e2e_enabled=e2e_enabled, e2e_env=e2e_env)
 
-        structural = {
-            "integration_transactions": 1 if name == "monorepo" else (2 if change_class == "shared_integration" else 1),
-            "handoffs": 0 if name == "monorepo" else (1 if change_class == "shared_integration" else 0),
-            "checkpoints": 1 if name == "monorepo" else (3 if change_class == "shared_integration" else 1),
-            "ci_surfaces": sum(1 for enabled in ROUTING[change_class].values() if enabled),
-            "rollback_units": 1 if name == "monorepo" else (2 if change_class == "shared_integration" else 1),
-        }
         materialize_s = bpt2_copy_s + podium_copy_s
         patch_s = float(patch["bpt2_patch_s"]) + float(patch["podium_patch_s"])
         return {
@@ -160,7 +195,7 @@ def treatment(
             "patch_s": patch_s,
             "execution": executed,
             "compute_s": materialize_s + patch_s + float(executed["compute_s"]),
-            "structural": structural,
+            "modeled_structural": STRUCTURAL_MODEL[name][change_class],
             "pass": bool(executed["pass"]),
         }
 
@@ -172,15 +207,16 @@ def summarize(pairs: list[dict[str, object]], change_class: str) -> dict[str, ob
         return summary
     split = median(float(row["split"]["compute_s"]) for row in rows)
     mono = median(float(row["monorepo"]["compute_s"]) for row in rows)
+    delta = ((mono / split) - 1.0) * 100.0 if split else None
     summary.update(
         {
             "split_compute_median_s": split,
             "monorepo_compute_median_s": mono,
-            "monorepo_vs_split_delta_pct": ((mono / split) - 1.0) * 100.0 if split else None,
+            "monorepo_vs_split_delta_pct": delta,
             "temporal_materiality_threshold_pct": 20.0,
-            "temporal_difference_material": abs(((mono / split) - 1.0) * 100.0) >= 20.0 if split else None,
-            "split_structural": rows[0]["split"]["structural"],
-            "monorepo_structural": rows[0]["monorepo"]["structural"],
+            "temporal_difference_material": abs(delta) >= 20.0 if delta is not None else None,
+            "split_modeled_structural": rows[0]["split"]["modeled_structural"],
+            "monorepo_modeled_structural": rows[0]["monorepo"]["modeled_structural"],
         }
     )
     return summary
@@ -241,10 +277,12 @@ def main() -> int:
         "pairs_per_class": args.pairs,
         "e2e_enabled": args.e2e,
         "routing": ROUTING,
+        "structural_model": STRUCTURAL_MODEL,
         "observations": observations,
         "summary": {change_class: summarize(observations, change_class) for change_class in classes},
         "interpretation_rules": {
             "timing_materiality_pct": 20.0,
+            "structural_counts_are_modeled_not_timed": True,
             "structural_counts_are_not_developer_hours": True,
             "monorepo_does_not_imply_shared_database_or_runtime": True,
             "language_convergence_out_of_scope": True,
@@ -252,9 +290,11 @@ def main() -> int:
         "threats_to_validity": [
             "local/controlled execution is not hosted GitHub Actions timing",
             "filesystem and package caches can affect timings",
+            "materialization measures local copy/layout, not controlled remote clone/network latency",
             "one integration workload does not establish future change distribution",
             "same-repository source colocation does not remove deployment/version compatibility",
             "ephemeral marker changes measure routing and orchestration rather than product behavior",
+            "modeled structural counts are preregistered workflow properties, not observed elapsed effort",
             "E2E requires an already-running BPT2 host and injected credential; host bootstrap time is not included by this harness",
         ],
     }
