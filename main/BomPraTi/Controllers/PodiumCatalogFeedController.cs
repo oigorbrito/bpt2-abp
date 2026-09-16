@@ -17,7 +17,6 @@ public sealed class PodiumCatalogFeedController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(PodiumCatalogImportResultDto), StatusCodes.Status200OK)]
     public Task<PodiumCatalogImportResultDto> ImportAsync(
         [FromBody] PodiumCatalogVehicleInput input,
         CancellationToken cancellationToken)
