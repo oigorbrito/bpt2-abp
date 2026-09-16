@@ -9,7 +9,7 @@ Snapshot volatile only.
 - Plan 0072 — Podium Catalog Feed HTTP V1 is active.
 - Outcome: freeze and prove an explicit external HTTP entrypoint for the already-implemented Podium Catalog Feed V1 without duplicating catalog/reconciliation logic.
 - Producer-side preparation is tracked in `oigorbrito/podium7#319`.
-- Consumer-side transport-definition issue is `#203`.
+- Consumer-side transport-definition issue is `#203`; implementation PR is `#204`.
 
 Active plan: [`../exec-plans/active/0072-podium-catalog-feed-http-v1.md`](../exec-plans/active/0072-podium-catalog-feed-http-v1.md).
 
@@ -34,21 +34,24 @@ The existing feed app service is protected by role `admin`; the explicit HTTP ad
 | ID | Blocker | Affects | Evidence | Required unblock | Can work continue? |
 | --- | --- | --- | --- | --- | --- |
 | BR-02 | `#160` main-branch integration policy remains administrative unless remote state has changed | repository administration | last verified state had `main` unprotected and no repository ruleset | repository administration authority / current remote revalidation | yes |
+| BR-03 | GitHub-hosted jobs fail before repository steps execute | Plan 0072 exact-head validation and other BPT2 gates | focused Podium feed job returned no steps; multiple unrelated workflows failed simultaneously; same pattern exists in `oigorbrito/podium7#318` | owner/account Actions billing/quota/budget/payment/runner eligibility or GitHub-side account condition must be resolved, then exact-head rerun | code/docs can advance; hosted certification cannot |
 
 ## Immediate blocker
 
-No repo-internal blocker is currently known for Plan 0072. CI execution on the exact branch is the next evidence target.
+Plan 0072 cannot satisfy its execution acceptance criterion until GitHub allocates a hosted runner and the exact-head focused gate executes real repository steps. This is not currently evidence of a code/test failure.
 
 ## Remote integration state
 
 - canonical remote repository: `oigorbrito/bpt2-abp`;
 - active branch: `feat/podium-catalog-feed-http-v1`;
 - issue `#203` defines the external staging transport outcome;
-- Podium producer work is in `oigorbrito/podium7#319`.
+- PR `#204` implements the explicit HTTP boundary and smoke;
+- Podium producer work is in `oigorbrito/podium7#319`;
+- cross-repository runner blocker is tracked in `oigorbrito/podium7#318`.
 
 ## Next closure item
 
-Run the dedicated Podium catalog feed gate with the new HTTP smoke, fix any exact-head failures, self-review the route/auth boundary, then close Plan 0072 only when the focused integration evidence is green.
+After hosted runner allocation is restored, rerun PR #204 exact-head `BPT2 Podium Catalog Feed Gate`. Close Plan 0072 only when the in-process fixture and HTTP smoke execute real steps and pass; then coordinate one retained end-to-end staging handoff with Podium7.
 
 ## Canonical links
 
