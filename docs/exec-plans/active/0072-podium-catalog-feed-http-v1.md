@@ -1,6 +1,6 @@
 # Plan 0072 — Podium catalog feed HTTP V1
 
-Status: **ATIVO**
+Status: **ATIVO / BLOQUEADO EM VALIDAÇÃO HOSPEDADA**
 
 ## Objetivo / outcome
 
@@ -12,8 +12,8 @@ Congelar e provar uma entrada HTTP externa explícita para o já existente Podiu
 - O wire contract de entrada permanece Podium Catalog JSON `2.0` (`contractVersion`, `entity`, `redirectsFrom`).
 - O app service já é fail-closed para versão, identidade mínima, `variant`, model-year ranges, redirects e colisões.
 - O app service atual exige role `admin`.
-- O host registra o módulo Ingestion em ABP conventional controllers, mas a rota externa do feed não era uma autoridade explícita/documentada.
 - Podium7 prepara o produtor correspondente em `oigorbrito/podium7#319`.
+- GitHub-hosted Actions está falhando antes de executar steps neste repositório e em `oigorbrito/podium7`; o blocker cruzado está registrado em `oigorbrito/podium7#318`.
 
 ## Escopo
 
@@ -46,14 +46,14 @@ Congelar e provar uma entrada HTTP externa explícita para o já existente Podiu
 
 ## Checkpoints
 
-- C1: endpoint explícito e smoke adicionados.
-- C2: gate focado atualizado e CI executado.
-- C3: self-review de auth, contract duplication e failure semantics.
-- C4: PR pronta somente com checks aplicáveis verdes.
+- C1: endpoint explícito e smoke adicionados — **ENCODED**.
+- C2: gate focado atualizado — **ENCODED**; execução hospedada bloqueada antes dos steps.
+- C3: self-review de auth, contract duplication e failure semantics — **ENCODED/REVIEWED**.
+- C4: PR pronta somente com checks aplicáveis verdes — **PENDING EXTERNAL CI**.
 
 ## Decisões abertas
 
-- **Machine authentication:** manter `admin` permite compatibilidade imediata, mas um client/scope/policy dedicado pode reduzir privilégio. Isso permanece hipótese/decisão futura até existir requisito operacional e teste correspondente; nenhum segredo ou client real será criado neste plano.
+- **Machine authentication:** manter `admin` preserva compatibilidade imediata, mas um client/scope/policy dedicado pode reduzir privilégio. Isso permanece hipótese/decisão futura até existir requisito operacional e teste correspondente; nenhum segredo ou client real será criado neste plano.
 
 ## Progress log
 
@@ -61,9 +61,11 @@ Congelar e provar uma entrada HTTP externa explícita para o já existente Podiu
 - 2026-09-16 — rota explícita `api/integrations/podium/catalog/v1/vehicles` implementada como delegação ao app service.
 - 2026-09-16 — smoke HTTP adicionado com casos Swagger/401/403/import/replay.
 - 2026-09-16 — gate dedicado atualizado para executar o smoke HTTP.
+- 2026-09-16 — exact-head focused gate disparou, porém o job terminou sem steps (`steps: null`); múltiplos workflows não relacionados apresentaram a mesma falha simultaneamente. Evidência classificada como blocker externo de runner/conta, não como falha de código.
 
 ## Decision log
 
 - A lógica existente do `IPodiumCatalogFeedAppService` permanece autoridade de importação; o HTTP controller é somente adapter de transporte.
 - O contrato externo do primeiro slice continua Catalog JSON `2.0`; enrichment permanece aditivo e posterior.
 - A rota explícita evita tornar convenção ABP implícita parte acidental do contrato entre repositórios.
+- O plano não será marcado concluído nem a PR promovida enquanto o gate exato não executar repository steps e passar.
