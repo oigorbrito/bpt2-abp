@@ -23,6 +23,16 @@ O harness valida os SHAs, cria árvores temporárias para `split` e `monorepo`, 
 
 BPT2 exige tanto build quanto execução da fixture focada. Podium executa `tests.test_bpt2_adapter`. A classe compartilhada executa também `scripts/bpt2_http_e2e.py` contra host BPT2/PostgreSQL real.
 
+## Path-scoped isolation
+
+O roteamento dos gates não é mais selecionado diretamente pelo nome da classe. Cada mudança efêmera registra os caminhos lógicos tocados (`podium7/...` e/ou `bpt2/...`) e o harness deriva mecanicamente o roteamento a partir desses prefixos:
+
+- caminho apenas `podium7/` → Podium gate;
+- caminho apenas `bpt2/` → BPT2 gate;
+- presença de ambos → Podium + BPT2 + E2E.
+
+O artifact registra `touched_paths`, `derived_routing`, `path_routing_rules` e o roteamento esperado. A execução falha se o roteamento derivado não corresponder ao tratamento pré-registrado. Isso prova o comportamento do classificador experimental; não afirma que um workflow de produção ainda inexistente já possua esses filtros.
+
 ## Isolamento do bootstrap de migrations
 
 `scripts/fresh-migration-gate.sh` gera arquivos de migration. Por isso nenhum runner pode executá-lo no checkout BPT2 usado como fonte da medição.
@@ -119,6 +129,7 @@ Mudanças isoladas não devem pagar suites do outro bounded context; mudanças c
 - Bootstrap é medido uma vez e fica fora das repetições pareadas; não deve ser atribuído diferencialmente a uma topologia.
 - O snapshot monorepo é colocalização de source trees; deployment/version compatibility continuam independentes.
 - Marcadores efêmeros medem roteamento/seleção de gates, não uma feature de produto.
+- O roteamento por caminhos é uma regra candidata controlada do experimento, não configuração de CI de produção já implantada.
 - Contagens estruturais são modelo pré-registrado, não esforço observado.
 
 ## VPS
@@ -130,6 +141,7 @@ A opção de executar este mesmo experimento em VPS foi **deferida**. Ela não f
 - [ ] 3/3 pares válidos para `podium_only`;
 - [ ] 3/3 pares válidos para `bpt2_only`;
 - [ ] 3/3 pares válidos para `shared_integration` com `--e2e`;
+- [ ] roteamento derivado dos caminhos coincide com o modelo esperado em todos os tratamentos;
 - [ ] BPT2 fixture executa e passa em todos os tratamentos aplicáveis;
 - [ ] criação/correção/redirect/replay/same VehicleId continuam PASS;
 - [ ] checkouts medidos permanecem limpos;
