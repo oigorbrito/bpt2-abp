@@ -327,21 +327,31 @@ public sealed class PublicListingQuery : IPublicListingQuery, ITransientDependen
             cancellationToken);
         var mediaById = mediaAssets.ToDictionary(x => x.Id);
 
-        return photoRows
-            .Where(x => mediaById.ContainsKey(x.MediaAssetId))
-            .Select(x =>
+        // Optimize photo grouping into a single O(N) pass to eliminate intermediate
+        // anonymous object allocations and LINQ GroupBy overhead in high-throughput query paths.
+        var photosByListing = new Dictionary<Guid, List<PublicListingPhotoDto>>();
+        foreach (var photoRow in photoRows)
+        {
+            if (mediaById.TryGetValue(photoRow.MediaAssetId, out var media))
             {
-                var media = mediaById[x.MediaAssetId];
-                return new
+                if (!photosByListing.TryGetValue(photoRow.ListingId, out var list))
                 {
-                    x.ListingId,
-                    Photo = new PublicListingPhotoDto(x.Id, x.MediaAssetId, media.ContentType, media.Length, x.SortOrder)
-                };
-            })
-            .GroupBy(x => x.ListingId)
-            .ToDictionary(
-                group => group.Key,
-                group => (IReadOnlyList<PublicListingPhotoDto>)group.Select(x => x.Photo).ToList());
+                    list = new List<PublicListingPhotoDto>();
+                    photosByListing[photoRow.ListingId] = list;
+                }
+
+                list.Add(new PublicListingPhotoDto(
+                    photoRow.Id,
+                    photoRow.MediaAssetId,
+                    media.ContentType,
+                    media.Length,
+                    photoRow.SortOrder));
+            }
+        }
+
+        return photosByListing.ToDictionary(
+            kvp => kvp.Key,
+            kvp => (IReadOnlyList<PublicListingPhotoDto>)kvp.Value);
     }
 
     private static PublicListingDto ToDto(
