@@ -33,9 +33,10 @@ O script:
 5. mede três classes: `podium_only`, `bpt2_only`, `shared_integration`;
 6. alterna a ordem dos tratamentos a cada repetição;
 7. executa gates reais de Podium e BPT2;
-8. no caso compartilhado, com `--e2e`, executa o `scripts/bpt2_http_e2e.py` real do Podium contra host BPT2 real;
-9. emite artifact JSON machine-readable;
-10. retorna código diferente de zero se faltarem pares válidos ou se o E2E real não tiver sido habilitado.
+8. no BPT2, exige tanto build quanto execução da fixture focada;
+9. no caso compartilhado, com `--e2e`, executa o `scripts/bpt2_http_e2e.py` real do Podium contra host BPT2 real;
+10. emite artifact JSON machine-readable;
+11. retorna código diferente de zero se faltarem pares válidos ou se o E2E real não tiver sido habilitado.
 
 ## Comandos focais
 
@@ -49,6 +50,7 @@ BPT2:
 
 ```text
 dotnet build tests/BomPraTi.PodiumCatalogFeedFixture/BomPraTi.PodiumCatalogFeedFixture.csproj --configuration Release --nologo
+dotnet run --project tests/BomPraTi.PodiumCatalogFeedFixture/BomPraTi.PodiumCatalogFeedFixture.csproj --configuration Release --no-build
 ```
 
 Shared E2E:
@@ -76,20 +78,25 @@ No Windows/PowerShell, usar a mesma invocação com caminhos nativos; não passa
 
 ## Métricas congeladas
 
-Por classe e tratamento:
+Por classe e tratamento, são observadas/temporizadas:
 
-- materialização;
+- materialização local do snapshot;
 - patch efêmero;
-- compute de gates reais;
+- compute dos gates reais;
 - execução E2E quando aplicável;
-- total compute;
+- total compute.
+
+Separadamente, são **modeladas e pré-registradas**, não medidas em tempo:
+
 - integration transactions;
 - handoffs;
 - checkpoints;
 - CI surfaces;
 - rollback units.
 
-Diferença temporal só é material a partir de `20%` de delta mediano absoluto. Contagens estruturais não são convertidas em developer-hours.
+Essas contagens estruturais descrevem o fluxo de integração esperado das duas topologias e aparecem no artifact sob `modeled_structural`. Não são evidência de horas, produtividade ou esforço cognitivo.
+
+Diferença temporal só é material a partir de `20%` de delta mediano absoluto.
 
 ## Path-scoped model
 
@@ -103,15 +110,21 @@ O modelo esperado é:
 
 Esse roteamento mede a propriedade necessária para um monorepo polyglot: mudanças isoladas não devem pagar suites do outro bounded context; mudanças compartilhadas devem executar ambos + E2E.
 
-## Limite do harness atual
+## Limites do harness atual
 
-O tempo de bootstrap do host/PostgreSQL não é medido internamente pelo script. Portanto, o relatório final deve registrar separadamente o setup do host ou evoluir o harness antes de usar tempo de E2E como custo total de ambiente. Essa limitação não invalida as métricas estruturais nem os gates de build/test, mas impede alegar vantagem temporal completa do E2E a partir deste script sozinho.
+- O tempo de bootstrap do host/PostgreSQL não é medido internamente pelo script. Portanto, o relatório final deve registrar separadamente o setup do host ou excluí-lo explicitamente da interpretação temporal completa do E2E.
+- A etapa de materialização usa cópia local de ambos os estados exatos em ambos os tratamentos. Ela mede layout/materialização local, não latência de clone remoto ou rede.
+- O snapshot monorepo é apenas colocalização de source trees; deployment e version compatibility continuam independentes.
+- Os marcadores efêmeros servem para roteamento/seleção dos gates; não representam uma feature de produto.
+
+Essas limitações não invalidam os gates funcionais nem as diferenças estruturais modeladas, mas restringem qualquer alegação causal sobre velocidade de desenvolvimento.
 
 ## Acceptance
 
 - [ ] 3/3 pares válidos para `podium_only`;
 - [ ] 3/3 pares válidos para `bpt2_only`;
 - [ ] 3/3 pares válidos para `shared_integration` com `--e2e`;
+- [ ] BPT2 focused fixture executa e passa em todos os tratamentos aplicáveis;
 - [ ] criação/correção/redirect/replay/same VehicleId continuam PASS;
 - [ ] artifact JSON retido;
 - [ ] host/bootstrap timing registrado ou explicitamente excluído da interpretação temporal;
