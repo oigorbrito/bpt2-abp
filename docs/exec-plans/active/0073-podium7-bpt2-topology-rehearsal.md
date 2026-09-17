@@ -4,6 +4,8 @@ Status: **ATIVO / EXECUÇÃO LOCAL CONTROLADA PENDENTE**
 
 Issue: #207
 
+Current rehearsal execution head after schema/validator alignment: `6d09898d70c2e56f8c2f34c28cf3f6690fb18eb9`.
+
 ## Outcome
 
 Executar o experimento controlado que falta no estudo #205 comparando dois checkouts/repositórios separados com um snapshot descartável de monorepo polyglot, usando os mesmos estados de código e sem alterar ownership, runtime, banco ou linguagem.
