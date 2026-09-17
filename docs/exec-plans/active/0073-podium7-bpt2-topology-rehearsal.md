@@ -25,7 +25,7 @@ BPT2 exige tanto build quanto execução da fixture focada. Podium executa `test
 
 ## Path-scoped isolation
 
-O roteamento dos gates não é mais selecionado diretamente pelo nome da classe. Cada mudança efêmera registra os caminhos lógicos tocados (`podium7/...` e/ou `bpt2/...`) e o harness deriva mecanicamente o roteamento a partir desses prefixos:
+O roteamento dos gates não é selecionado diretamente pelo nome da classe. Cada mudança efêmera registra os caminhos lógicos tocados (`podium7/...` e/ou `bpt2/...`) e o harness deriva mecanicamente o roteamento a partir desses prefixos:
 
 - caminho apenas `podium7/` → Podium gate;
 - caminho apenas `bpt2/` → BPT2 gate;
@@ -43,9 +43,11 @@ O runner local cria um **worktree detached descartável** no SHA BPT2 congelado 
 
 `scripts/validate-podium7-bpt2-topology-artifact.py`
 
+O contrato atual do artifact principal é `bpt2.podium7-topology-rehearsal.v2`. O schema `v2` adiciona evidência mecânica de roteamento por paths (`touched_paths`, `derived_routing`, `path_routing_rules`, `expected_routing`) e substitui o `v1` experimental anterior. O validator e o harness devem permanecer na mesma versão.
+
 O validador executa depois que o runner grava o artifact principal e o `.bootstrap.json`. Ele rejeita qualquer conjunto que não satisfaça todos os invariantes abaixo:
 
-- schemas esperados;
+- schema principal `bpt2.podium7-topology-rehearsal.v2` e bootstrap `bpt2.podium7-topology-bootstrap.v1`;
 - heads exatamente congelados;
 - E2E real habilitado;
 - exatamente 3 pares por classe, sem duplicatas;
@@ -53,12 +55,14 @@ O validador executa depois que o runner grava o artifact principal e o `.bootstr
 - `split` e `monorepo` aprovados em cada par;
 - `touched_paths` presentes;
 - `derived_routing` igual ao roteamento esperado para cada classe;
+- roteamento executado igual ao derivado dos paths;
+- structural counts permanecem explicitamente modelados, não temporizados;
 - threshold temporal ainda em `20%`;
 - migrations executadas em worktree detached descartável;
 - checkouts medidos declarados limpos;
 - bootstrap separado do timing pareado.
 
-O runner só imprime `TOPOLOGY_REHEARSAL: PASS` depois de `PODIUM7_BPT2_TOPOLOGY_ARTIFACT: PASS`. Portanto um JSON parcial, sem E2E ou com head divergente não pode ser usado acidentalmente como evidência de aceite.
+O runner só imprime `TOPOLOGY_REHEARSAL: PASS` depois de `PODIUM7_BPT2_TOPOLOGY_ARTIFACT: PASS`. Portanto um JSON parcial, sem E2E, com head divergente ou de schema antigo não pode ser usado acidentalmente como evidência de aceite.
 
 ## Runner local Windows / Codex
 
@@ -81,7 +85,7 @@ O wrapper:
 
 ## Execução de referência
 
-Com dois worktrees detached nos heads congelados, executar a partir do checkout do PR #208:
+Com dois worktrees detached nos heads congelados, executar a partir do checkout do **head atual** do PR #208:
 
 ```powershell
 pwsh scripts/run-podium7-bpt2-topology-rehearsal.ps1 `
@@ -100,10 +104,12 @@ Antes de medir:
 1. refetch dos dois repositórios;
 2. criar worktrees/checkouts detached exatamente nos SHAs congelados;
 3. confirmar `git status --short` vazio;
-4. executar o wrapper PowerShell do head atual do PR #208;
-5. exigir no stdout `PODIUM7_BPT2_TOPOLOGY_ARTIFACT: PASS` e `TOPOLOGY_REHEARSAL: PASS`;
-6. reter `podium7-bpt2-topology-rehearsal.json` e o artifact `.bootstrap.json` correspondente;
-7. registrar stdout final, heads e qualquer exclusão/ameaça à validade.
+4. fazer checkout do head atual do PR #208, nunca reutilizar um SHA antigo do rehearsal;
+5. executar o wrapper PowerShell;
+6. exigir no stdout `PODIUM7_BPT2_TOPOLOGY_ARTIFACT: PASS` e `TOPOLOGY_REHEARSAL: PASS`;
+7. reter `podium7-bpt2-topology-rehearsal.json` e o artifact `.bootstrap.json` correspondente;
+8. confirmar no JSON principal `schema = bpt2.podium7-topology-rehearsal.v2`;
+9. registrar stdout final, heads e qualquer exclusão/ameaça à validade.
 
 Não usar `--allow-head-drift` apenas para contornar checkout incorreto. Se algum PR tiver mudado de head, parar a medição, registrar a nova revisão no #207 e decidir se a evidência anterior continua comparável.
 
@@ -168,7 +174,7 @@ A opção de executar este mesmo experimento em VPS foi **deferida**. Ela não f
 - [ ] BPT2 fixture executa e passa em todos os tratamentos aplicáveis;
 - [ ] criação/correção/redirect/replay/same VehicleId continuam PASS;
 - [ ] checkouts medidos permanecem limpos;
-- [ ] artifact JSON principal retido;
+- [ ] artifact JSON principal `v2` retido;
 - [ ] bootstrap artifact retido;
 - [ ] `PODIUM7_BPT2_TOPOLOGY_ARTIFACT: PASS` registrado;
 - [ ] resultado incorporado ao #205;
