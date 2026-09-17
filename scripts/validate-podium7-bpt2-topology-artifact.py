@@ -13,6 +13,11 @@ EXPECTED_ROUTING = {
     "bpt2_only": {"podium": False, "bpt2": True, "e2e": False},
     "shared_integration": {"podium": True, "bpt2": True, "e2e": True},
 }
+EXPECTED_PATH_ROUTING_RULES = {
+    "podium_prefix": "podium7/",
+    "bpt2_prefix": "bpt2/",
+    "shared_e2e_rule": "run E2E iff both podium7/ and bpt2/ paths changed",
+}
 
 
 def load_json(path: Path) -> dict:
@@ -31,10 +36,18 @@ def require(condition: bool, message: str) -> None:
 
 
 def validate_main(payload: dict, pairs: int) -> None:
-    require(payload.get("schema") == "bpt2.podium7-topology-rehearsal.v1", "unexpected rehearsal schema")
+    require(payload.get("schema") == "bpt2.podium7-topology-rehearsal.v2", "unexpected rehearsal schema")
     require(payload.get("heads") == {"bpt2": EXPECTED_BPT2_HEAD, "podium7": EXPECTED_PODIUM_HEAD}, "rehearsal heads do not match frozen heads")
     require(payload.get("e2e_enabled") is True, "rehearsal was not executed with real E2E enabled")
     require(payload.get("pairs_per_class") == pairs, f"expected {pairs} pairs per class")
+    require(payload.get("expected_routing") == EXPECTED_ROUTING, "expected routing table changed")
+    require(payload.get("path_routing_rules") == EXPECTED_PATH_ROUTING_RULES, "path routing rules changed")
+
+    rules = payload.get("interpretation_rules")
+    require(isinstance(rules, dict), "interpretation rules missing")
+    require(rules.get("routing_is_derived_from_touched_paths") is True, "routing must be derived from touched paths")
+    require(rules.get("structural_counts_are_modeled_not_timed") is True, "structural counts must remain modeled")
+    require(rules.get("structural_counts_are_not_developer_hours") is True, "structural counts must not be developer-hours")
 
     observations = payload.get("observations")
     require(isinstance(observations, list), "observations must be a list")
@@ -61,6 +74,8 @@ def validate_main(payload: dict, pairs: int) -> None:
             require(derived == EXPECTED_ROUTING[change_class], f"derived routing mismatch for {treatment} {change_class}/{pair}: {derived}")
             execution = sample.get("execution")
             require(isinstance(execution, dict) and execution.get("pass") is True, f"execution failed for {treatment} {change_class}/{pair}")
+            require(execution.get("routing") == derived, f"execution routing mismatch for {treatment} {change_class}/{pair}")
+            require(isinstance(sample.get("modeled_structural"), dict), f"modeled structural data missing for {treatment} {change_class}/{pair}")
 
     summary = payload.get("summary")
     require(isinstance(summary, dict), "summary must be an object")
@@ -71,6 +86,8 @@ def validate_main(payload: dict, pairs: int) -> None:
         delta = item.get("monorepo_vs_split_delta_pct")
         require(isinstance(delta, (int, float)), f"missing timing delta for {change_class}")
         require(item.get("temporal_materiality_threshold_pct") == 20.0, "timing materiality threshold changed")
+        require(isinstance(item.get("split_modeled_structural"), dict), f"split structural summary missing for {change_class}")
+        require(isinstance(item.get("monorepo_modeled_structural"), dict), f"monorepo structural summary missing for {change_class}")
 
 
 def validate_bootstrap(payload: dict) -> None:
