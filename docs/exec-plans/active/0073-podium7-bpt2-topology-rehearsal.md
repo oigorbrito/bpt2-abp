@@ -4,7 +4,7 @@ Status: **ATIVO / EXECUÇÃO LOCAL CONTROLADA PENDENTE**
 
 Issue: #207
 
-Current rehearsal execution head after schema/validator alignment: `6d09898d70c2e56f8c2f34c28cf3f6690fb18eb9`.
+O head executável do rehearsal é sempre o **head atual do PR #208**. Não congelar esse SHA dentro deste próprio arquivo, pois qualquer commit documental o tornaria obsoleto. Os únicos SHAs congelados para a medição são os estados BPT2/Podium7 abaixo.
 
 ## Outcome
 
