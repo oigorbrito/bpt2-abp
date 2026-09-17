@@ -43,7 +43,7 @@ export default function WhatsAppContactButton({ listingId }: Props) {
   return (
     <form action="/api/contact/whatsapp" method="post" target="_blank" onSubmit={contactSeller}>
       <input name="listingId" type="hidden" value={listingId} />
-      <button className="whatsapp-cta" type="submit" disabled={busy}>
+      <button className="whatsapp-cta" aria-busy={busy} type="submit" disabled={busy}>
         {busy ? "Abrindo WhatsApp…" : "Falar no WhatsApp"}
       </button>
       {error ? <p className="contact-unavailable" role="alert">{error}</p> : null}
