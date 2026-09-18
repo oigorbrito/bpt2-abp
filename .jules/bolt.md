@@ -1,0 +1,3 @@
+## 2024-09-18 - Typeahead Local Caching
+**Learning:** Typeahead/autocomplete components like `VehicleSelector` can generate excessive network requests, especially when users fix typos or backspace over queries they just typed.
+**Action:** Always implement local caching (e.g., using `useRef` in React) for typeahead query results. This provides immediate UI feedback for previously searched terms and significantly reduces redundant backend load.

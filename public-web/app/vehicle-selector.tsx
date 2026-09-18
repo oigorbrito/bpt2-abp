@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { type VehicleRef, vehicleSelectorLabel } from "@/lib/catalog";
 import styles from "./page.module.css";
 
@@ -16,9 +16,20 @@ export default function VehicleSelector({ initialVehicle }: VehicleSelectorProps
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
 
+  // ⚡ Bolt: Cache API responses to prevent redundant requests on backspace or re-typing
+  const cache = useRef<Record<string, VehicleRef[]>>({});
+
   useEffect(() => {
     const query = text.trim();
     if (selected || query.length < 2) {
+      return;
+    }
+
+    const cacheKey = query.toLowerCase();
+    if (cache.current[cacheKey]) {
+      const items = cache.current[cacheKey];
+      setResults(items);
+      setStatus(items.length === 0 ? "Nenhum veículo encontrado." : `${items.length} opção(ões).`);
       return;
     }
 
@@ -36,6 +47,7 @@ export default function VehicleSelector({ initialVehicle }: VehicleSelectorProps
           throw new Error("catalog lookup failed");
         }
         const items = (await response.json()) as VehicleRef[];
+        cache.current[cacheKey] = items;
         setResults(items);
         setStatus(items.length === 0 ? "Nenhum veículo encontrado." : `${items.length} opção(ões).`);
       } catch (reason: unknown) {
