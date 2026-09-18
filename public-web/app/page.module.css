@@ -134,6 +134,16 @@
   font: inherit;
   font-weight: 700;
   cursor: pointer;
+  transition: background 0.15s ease-in-out, outline 0.15s ease-in-out;
+}
+
+.submitFilters:hover {
+  background: #2a2a2a;
+}
+
+.submitFilters:focus-visible {
+  outline: 2px solid #171717;
+  outline-offset: 2px;
 }
 
 .pagination {

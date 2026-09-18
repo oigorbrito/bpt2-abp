@@ -313,6 +313,16 @@ h3 {
   font-weight: 700;
   text-align: center;
   text-decoration: none;
+  transition: background 0.15s ease-in-out, outline 0.15s ease-in-out;
+}
+
+.whatsapp-cta:hover {
+  background: #2a2a2a;
+}
+
+.whatsapp-cta:focus-visible {
+  outline: 2px solid #171717;
+  outline-offset: 2px;
 }
 
 .contact-unavailable {
@@ -477,6 +487,13 @@ h3 {
   font: inherit;
   font-weight: 700;
   cursor: pointer;
+  transition: background 0.15s ease-in-out, color 0.15s ease-in-out, outline 0.15s ease-in-out;
+}
+
+.primary-action:focus-visible,
+.secondary-action:focus-visible {
+  outline: 2px solid #171717;
+  outline-offset: 2px;
 }
 
 .primary-action {
@@ -484,9 +501,17 @@ h3 {
   color: #fff;
 }
 
+.primary-action:hover {
+  background: #2a2a2a;
+}
+
 .secondary-action {
   background: transparent;
   color: #171717;
+}
+
+.secondary-action:hover {
+  background: #f1f1ed;
 }
 
 .primary-action:disabled,
