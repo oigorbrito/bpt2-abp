@@ -28,7 +28,7 @@ export default function VehicleSelector({ initialVehicle }: VehicleSelectorProps
       setStatus(null);
       try {
         const response = await fetch(`/api/vehicle-catalog?query=${encodeURIComponent(query)}`, {
-          // ⚡ Bolt: Removed 'cache: "no-store"' to leverage the Cache-Control headers returned by the API
+          cache: "no-store",
           signal: controller.signal,
           headers: { Accept: "application/json" },
         });

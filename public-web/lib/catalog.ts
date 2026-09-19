@@ -36,7 +36,7 @@ export async function getVehicleCatalogPage(
   }
 
   const response = await fetch(url, {
-    next: { revalidate: 86400 }, // ⚡ Bolt: Cache highly static vehicle catalog for 24h to reduce latency
+    cache: "no-store",
     headers: { Accept: "application/json" },
   });
 
@@ -51,7 +51,7 @@ export async function getVehicle(id: string): Promise<VehicleRef | null> {
   const response = await fetch(
     new URL(`/api/app/vehicle-catalog/${encodeURIComponent(id)}`, `${serverApiBaseUrl()}/`),
     {
-      next: { revalidate: 86400 }, // ⚡ Bolt: Cache highly static vehicle detail for 24h
+      cache: "no-store",
       headers: { Accept: "application/json" },
     },
   );

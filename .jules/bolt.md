@@ -1,3 +1,0 @@
-## 2024-05-24 - Static Catalog Data Caching
-**Learning:** The vehicle catalog is highly static and should not be fetched on every request. Relying on `cache: "no-store"` across all layers causes redundant network latency and loads the backend heavily. Next.js App Router and the custom HTTP client wrapper should be configured for layered HTTP caching on endpoints serving relatively immutable lookup data.
-**Action:** When handling highly static lookup structures (like makes/models), implement dual caching: use Next.js `next: { revalidate: 86400 }` on backend fetches to cache them in the server, and add HTTP `Cache-Control` max-age headers to API Route responses so browser/CDN components can avoid unnecessary network overhead.
