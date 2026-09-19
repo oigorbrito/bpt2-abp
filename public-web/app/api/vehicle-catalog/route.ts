@@ -11,7 +11,12 @@ export async function GET(request: Request) {
 
   try {
     const items = await getVehicleCatalogPage(0, 12, query);
-    return NextResponse.json(items);
+    // ⚡ Bolt: Allow browser and CDN to cache search results to offload backend
+    return NextResponse.json(items, {
+      headers: {
+        "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
+      },
+    });
   } catch {
     return NextResponse.json(
       { error: "Não foi possível consultar o catálogo agora." },
