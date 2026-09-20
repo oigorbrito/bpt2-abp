@@ -41,12 +41,18 @@ export default function ReportButton({ listingId }: { listingId: string }) {
     }
   }
 
+  const labelText = busy
+    ? "Sinalizando…"
+    : reported
+    ? "Anúncio sinalizado"
+    : "Sinalizar anúncio";
+
   return (
     <div>
-      <button className="secondary-action" disabled={busy || reported} type="button" onClick={report}>
-        {reported ? "Anúncio sinalizado" : "Sinalizar anúncio"}
+      <button className="secondary-action" disabled={busy || reported} aria-busy={busy} type="button" onClick={report}>
+        {labelText}
       </button>
-      {error ? <p className="seller-auth-error">{error}</p> : null}
+      {error ? <p className="seller-auth-error" role="alert">{error}</p> : null}
     </div>
   );
 }
