@@ -112,7 +112,8 @@ function SellerEntryPageContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeStatus = readStatusFilter(searchParams.get("status"));
-  const summary = inventorySummary(listings);
+  // Memoize inventory summary to avoid redundant array reductions on every render (e.g. when changing filters)
+  const summary = useMemo(() => inventorySummary(listings), [listings]);
   const filteredListings = useMemo(
     () => (activeStatus === "all" ? listings : listings.filter((listing) => listing.status === activeStatus)),
     [activeStatus, listings],
