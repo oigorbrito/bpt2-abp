@@ -4,6 +4,9 @@ import { useEffect, useId, useState } from "react";
 import { type VehicleRef, vehicleSelectorLabel } from "@/lib/catalog";
 import styles from "./page.module.css";
 
+// ⚡ Bolt: Cache search results to prevent duplicate API requests when user types/backspaces
+const searchCache = new Map<string, VehicleRef[]>();
+
 type VehicleSelectorProps = {
   initialVehicle: VehicleRef | null;
 };
@@ -24,6 +27,14 @@ export default function VehicleSelector({ initialVehicle }: VehicleSelectorProps
 
     const controller = new AbortController();
     const timer = window.setTimeout(async () => {
+      // ⚡ Bolt: Return cached results immediately if available
+      if (searchCache.has(query)) {
+        const cachedItems = searchCache.get(query)!;
+        setResults(cachedItems);
+        setStatus(cachedItems.length === 0 ? "Nenhum veículo encontrado." : `${cachedItems.length} opção(ões).`);
+        return;
+      }
+
       setLoading(true);
       setStatus(null);
       try {
@@ -36,6 +47,7 @@ export default function VehicleSelector({ initialVehicle }: VehicleSelectorProps
           throw new Error("catalog lookup failed");
         }
         const items = (await response.json()) as VehicleRef[];
+        searchCache.set(query, items); // ⚡ Bolt: Cache the result
         setResults(items);
         setStatus(items.length === 0 ? "Nenhum veículo encontrado." : `${items.length} opção(ões).`);
       } catch (reason: unknown) {
