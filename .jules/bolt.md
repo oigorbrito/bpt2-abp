@@ -1,0 +1,3 @@
+## 2024-05-24 - Next.js Default Cache Anti-Pattern for Static Catalogs
+**Learning:** Next.js `fetch` in Server Components defaults to `cache: 'no-store'` in some contexts or was explicitly set to it in this codebase for static data like vehicle catalogs. This prevents Next.js from caching the static responses, leading to unnecessary backend load and slower frontend rendering.
+**Action:** Use Next.js server-side revalidation (`next: { revalidate: 3600 }`) for static catalog fetches and apply a simple client-side `Map` memoization for repetitive queries (like search inputs) to improve performance significantly without full architectural changes.

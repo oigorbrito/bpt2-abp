@@ -4,6 +4,8 @@ import { useEffect, useId, useState } from "react";
 import { type VehicleRef, vehicleSelectorLabel } from "@/lib/catalog";
 import styles from "./page.module.css";
 
+const vehicleQueryCache = new Map<string, VehicleRef[]>();
+
 type VehicleSelectorProps = {
   initialVehicle: VehicleRef | null;
 };
@@ -22,13 +24,26 @@ export default function VehicleSelector({ initialVehicle }: VehicleSelectorProps
       return;
     }
 
+    let isSubscribed = true;
+
+    if (vehicleQueryCache.has(query)) {
+      // Use setTimeout to avoid synchronous setState inside useEffect
+      setTimeout(() => {
+        if (!isSubscribed) return;
+        const cachedItems = vehicleQueryCache.get(query)!;
+        setResults(cachedItems);
+        setStatus(cachedItems.length === 0 ? "Nenhum veículo encontrado." : `${cachedItems.length} opção(ões).`);
+        setLoading(false);
+      }, 0);
+      return () => { isSubscribed = false; };
+    }
+
     const controller = new AbortController();
     const timer = window.setTimeout(async () => {
       setLoading(true);
       setStatus(null);
       try {
         const response = await fetch(`/api/vehicle-catalog?query=${encodeURIComponent(query)}`, {
-          cache: "no-store",
           signal: controller.signal,
           headers: { Accept: "application/json" },
         });
@@ -36,20 +51,29 @@ export default function VehicleSelector({ initialVehicle }: VehicleSelectorProps
           throw new Error("catalog lookup failed");
         }
         const items = (await response.json()) as VehicleRef[];
-        setResults(items);
-        setStatus(items.length === 0 ? "Nenhum veículo encontrado." : `${items.length} opção(ões).`);
+        vehicleQueryCache.set(query, items);
+
+        if (isSubscribed) {
+          setResults(items);
+          setStatus(items.length === 0 ? "Nenhum veículo encontrado." : `${items.length} opção(ões).`);
+        }
       } catch (reason: unknown) {
         if (reason instanceof DOMException && reason.name === "AbortError") {
           return;
         }
-        setResults([]);
-        setStatus("Não foi possível consultar o catálogo agora.");
+        if (isSubscribed) {
+          setResults([]);
+          setStatus("Não foi possível consultar o catálogo agora.");
+        }
       } finally {
-        setLoading(false);
+        if (isSubscribed) {
+          setLoading(false);
+        }
       }
     }, 250);
 
     return () => {
+      isSubscribed = false;
       controller.abort();
       window.clearTimeout(timer);
     };
