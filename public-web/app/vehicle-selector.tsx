@@ -8,6 +8,9 @@ type VehicleSelectorProps = {
   initialVehicle: VehicleRef | null;
 };
 
+// Cache vehicle queries on the client to avoid repeated fetches when typing/backspacing
+const queryCache = new Map<string, VehicleRef[]>();
+
 export default function VehicleSelector({ initialVehicle }: VehicleSelectorProps) {
   const listboxId = useId();
   const [selected, setSelected] = useState<VehicleRef | null>(initialVehicle);
@@ -24,6 +27,13 @@ export default function VehicleSelector({ initialVehicle }: VehicleSelectorProps
 
     const controller = new AbortController();
     const timer = window.setTimeout(async () => {
+      if (queryCache.has(query)) {
+        const cachedItems = queryCache.get(query)!;
+        setResults(cachedItems);
+        setStatus(cachedItems.length === 0 ? "Nenhum veículo encontrado." : `${cachedItems.length} opção(ões).`);
+        return;
+      }
+
       setLoading(true);
       setStatus(null);
       try {
@@ -36,6 +46,7 @@ export default function VehicleSelector({ initialVehicle }: VehicleSelectorProps
           throw new Error("catalog lookup failed");
         }
         const items = (await response.json()) as VehicleRef[];
+        queryCache.set(query, items);
         setResults(items);
         setStatus(items.length === 0 ? "Nenhum veículo encontrado." : `${items.length} opção(ões).`);
       } catch (reason: unknown) {
