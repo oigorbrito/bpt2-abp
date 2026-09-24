@@ -46,7 +46,7 @@ export default function ReportButton({ listingId }: { listingId: string }) {
       <button className="secondary-action" disabled={busy || reported} type="button" onClick={report}>
         {reported ? "Anúncio sinalizado" : "Sinalizar anúncio"}
       </button>
-      {error ? <p className="seller-auth-error">{error}</p> : null}
+      {error ? <p className="seller-auth-error" role="alert">{error}</p> : null}
     </div>
   );
 }
