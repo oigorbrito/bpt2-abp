@@ -1,0 +1,3 @@
+## 2024-05-24 - Static Catalog Queries Optimization
+**Learning:** Defaulting to `cache: "no-store"` for static backend API fetches (like catalog data) is a significant performance anti-pattern in the Next.js frontend. It prevents Next.js from caching the data and forces repetitive API calls. Furthermore, attempting to memoize with an unbounded in-memory `Map` in the Next.js backend bypasses built-in revalidation logic (like `next: { revalidate: [seconds] }`) and causes unbounded memory leaks.
+**Action:** Exclusively rely on Next.js server-side cache/revalidation (`next: { revalidate: [seconds] }`) for caching static backend API fetches instead of implementing custom in-memory caching solutions.
