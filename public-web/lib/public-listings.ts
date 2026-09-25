@@ -123,8 +123,10 @@ export async function getPublicListings(
   setNumber(url.searchParams, "Skip", input.skip ?? 0);
   setNumber(url.searchParams, "Take", input.take ?? 24);
 
+  // ⚡ Bolt: Use server-side cache/revalidation instead of 'cache: "no-store"'
+  // This reduces backend load for common searches, serving cached listings for 60 seconds.
   const response = await fetch(url, {
-    cache: "no-store",
+    next: { revalidate: 60 },
     headers: { Accept: "application/json" },
   });
 
@@ -136,10 +138,12 @@ export async function getPublicListings(
 }
 
 export async function getPublicListing(id: string): Promise<PublicListing | null> {
+  // ⚡ Bolt: Use server-side cache/revalidation instead of 'cache: "no-store"'
+  // Caching listing details briefly reduces DB hits on high-traffic listing pages.
   const response = await fetch(
     new URL(`/api/app/public-listing/${encodeURIComponent(id)}`, `${serverApiBaseUrl()}/`),
     {
-      cache: "no-store",
+      next: { revalidate: 60 },
       headers: { Accept: "application/json" },
     },
   );

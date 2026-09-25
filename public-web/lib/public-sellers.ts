@@ -18,10 +18,12 @@ function serverApiBaseUrl(): string {
 }
 
 export async function getPublicSeller(sellerId: string): Promise<PublicSeller | null> {
+  // ⚡ Bolt: Use server-side cache/revalidation instead of 'cache: "no-store"'
+  // This avoids redundant backend calls for largely static public seller profiles.
   const response = await fetch(
     new URL(`/api/app/seller-public-query/${encodeURIComponent(sellerId)}`, `${serverApiBaseUrl()}/`),
     {
-      cache: "no-store",
+      next: { revalidate: 3600 },
       headers: { Accept: "application/json" },
     },
   );

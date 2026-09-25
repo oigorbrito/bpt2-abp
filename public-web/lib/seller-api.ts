@@ -132,7 +132,10 @@ async function apiRequest(
 }
 
 async function publicRequest(path: string): Promise<Response> {
-  const response = await fetch(`${apiBaseUrl()}${path}`, { cache: "no-store" });
+  // ⚡ Bolt: Removed generic cache: 'no-store'. Now relying on specific caller caching or defaults.
+  // This allows static catalog requests (which use this wrapper) to benefit from caching,
+  // preventing a Next.js anti-pattern and reducing duplicate network calls.
+  const response = await fetch(`${apiBaseUrl()}${path}`, { next: { revalidate: 3600 } });
   if (!response.ok) {
     const detail = await response.text();
     throw new Error(
