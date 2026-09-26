@@ -11,7 +11,8 @@ export default function BuyerCallbackPage() {
       try {
         const user = await getBuyerUserManager().signinRedirectCallback();
         const state = user.state as { returnTo?: string } | undefined;
-        const returnTo = state?.returnTo?.startsWith("/") ? state.returnTo : "/favoritos";
+        // Security fix: Prevent Open Redirect via protocol-relative URLs
+        const returnTo = state?.returnTo?.startsWith("/") && !state?.returnTo?.startsWith("//") ? state.returnTo : "/favoritos";
         window.location.replace(returnTo);
       } catch (reason: unknown) {
         setError(reason instanceof Error ? reason.message : "Não foi possível concluir o login.");
