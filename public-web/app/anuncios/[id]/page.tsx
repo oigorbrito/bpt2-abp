@@ -132,7 +132,8 @@ export default async function ListingDetailPage({ params, searchParams }: PagePr
   const vehicle = await loadVehicle(listing.vehicleId);
   const contactUrl = whatsAppUrl(listing.seller.whatsAppNumber);
   const structuredData = listingStructuredData(listing);
-  const backHref = returnTo.startsWith("/") ? returnTo : "/";
+  // Ensure we don't follow protocol-relative URLs for open redirect protection
+  const backHref = returnTo.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/";
   const vehicleHref = `/veiculos/${encodeURIComponent(listing.vehicleId)}`;
   const vehicleTitle = vehicle
     ? vehicleRefLabel(vehicle)
