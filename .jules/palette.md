@@ -1,0 +1,3 @@
+## 2024-05-18 - Missing loading and alert roles in listing actions
+**Learning:** Secondary actions on listing pages like `FavoriteButton` and `ReportButton` lacked explicit loading state text during async network requests. Furthermore, the error messages they displayed when failing were missing the `role="alert"` attribute, rendering the error response invisible to screen readers without shifting focus manually.
+**Action:** Always check interactive buttons handling API calls for intermediate loading states and ensure dynamic error messages injected into the DOM use `role="alert"` or `aria-live` to guarantee screen reader announcements.
