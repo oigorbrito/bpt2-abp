@@ -1,0 +1,3 @@
+## 2024-06-25 - Next.js Caching Anti-Pattern in Fetch
+**Learning:** Defaulting to `cache: 'no-store'` for static backend API fetches in the Next.js frontend (`public-web`) is a performance anti-pattern. It bypasses the built-in revalidation logic and can cause unbounded memory leaks, likely due to how custom Maps or caching layers interacted with Next.js internals if not careful.
+**Action:** Exclusively rely on Next.js server-side cache/revalidation (`next: { revalidate: [seconds] }`) for largely static fetches, such as vehicle catalogs (`lib/catalog.ts` and `lib/seller-api.ts`), to properly leverage caching mechanisms without issues.

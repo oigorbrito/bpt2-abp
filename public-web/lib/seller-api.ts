@@ -132,7 +132,7 @@ async function apiRequest(
 }
 
 async function publicRequest(path: string): Promise<Response> {
-  const response = await fetch(`${apiBaseUrl()}${path}`, { cache: "no-store" });
+  const response = await fetch(`${apiBaseUrl()}${path}`, { next: { revalidate: 3600 } });
   if (!response.ok) {
     const detail = await response.text();
     throw new Error(
