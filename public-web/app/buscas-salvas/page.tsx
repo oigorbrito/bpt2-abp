@@ -176,7 +176,7 @@ export default function SavedSearchesPage() {
       </header>
 
       {loading ? <p className="seller-shell-status">Verificando sessão…</p> : null}
-      {error ? <p className="seller-auth-error">{error}</p> : null}
+      {error ? <p className="seller-auth-error" role="alert">{error}</p> : null}
 
       {!loading && !user ? (
         <section className="seller-auth-card">
