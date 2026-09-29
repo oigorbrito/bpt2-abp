@@ -1,0 +1,3 @@
+## 2024-10-24 - Unbounded Backend Hits via cache: 'no-store' in Next.js
+**Learning:** A common performance anti-pattern in the Next.js frontend (`public-web`) is defaulting to `cache: 'no-store'` for static backend API fetches (e.g., catalog items). This bypasses Next.js built-in revalidation logic and causes unbounded memory leaks and excessive, unnecessary backend load for data that changes infrequently.
+**Action:** Exclusively rely on Next.js server-side cache/revalidation (`next: { revalidate: [seconds] }`) for static data to optimize load and memory, and do not implement custom in-memory `Map` caching for API fetches.
