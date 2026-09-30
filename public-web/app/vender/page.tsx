@@ -308,7 +308,62 @@ function SellerEntryPageContent() {
               ) : null}
             </div>
             {listings.length === 0 ? <div className="empty-state seller-empty-state"><h3>Nenhum anúncio ainda.</h3><p>Crie um Draft escolhendo um Vehicle do catálogo canônico.</p></div> : filteredListings.length === 0 ? <div className="empty-state seller-empty-state"><h3>Nenhum anúncio neste estado.</h3><p>Limpe o filtro ou escolha outro status para continuar.</p></div> : (
-              <div className="seller-listing-list">{filteredListings.map((listing) => <article className="seller-listing-row" key={listing.id}><div><p className="seller-listing-status">{statusLabel(listing.status)}</p><h3>{listing.title}</h3><p className="seller-listing-location">{listing.city} / {listing.stateCode}</p><p className="seller-form-help">Próxima ação: {nextListingAction(listing.status)}</p></div><div className="seller-listing-actions"><p className="seller-listing-price">{formatPrice(listing.price)}</p>{canPublishListing(listing.status) ? <button type="button" className="secondary-action compact-action" disabled={updatingListingId === listing.id} onClick={() => void runListingAction(listing.id, "publish")}>{updatingListingId === listing.id ? "Atualizando…" : "Publicar"}</button> : null}{canPauseListing(listing.status) ? <button type="button" className="secondary-action compact-action" disabled={updatingListingId === listing.id} onClick={() => void runListingAction(listing.id, "pause")}>{updatingListingId === listing.id ? "Atualizando…" : "Pausar"}</button> : null}{canArchiveListing(listing.status) ? <button type="button" className="secondary-action compact-action" disabled={updatingListingId === listing.id} onClick={() => void runListingAction(listing.id, "archive")}>{updatingListingId === listing.id ? "Atualizando…" : "Arquivar"}</button> : null}{canEditListing(listing.status) ? <Link className="secondary-action action-link" href={`/vender/anuncios/${listing.id}`}>Editar</Link> : null}<Link className="secondary-action action-link" href="#contatos">Ver leads</Link></div></article>)}</div>
+              <div className="seller-listing-list">
+                {filteredListings.map((listing) => (
+                  <article className="seller-listing-row" key={listing.id}>
+                    <div>
+                      <p className="seller-listing-status">{statusLabel(listing.status)}</p>
+                      <h3>{listing.title}</h3>
+                      <p className="seller-listing-location">{listing.city} / {listing.stateCode}</p>
+                      <p className="seller-form-help">Próxima ação: {nextListingAction(listing.status)}</p>
+                    </div>
+                    <div className="seller-listing-actions">
+                      <p className="seller-listing-price">{formatPrice(listing.price)}</p>
+                      {canPublishListing(listing.status) ? (
+                        <button
+                          type="button"
+                          className="secondary-action compact-action"
+                          disabled={updatingListingId === listing.id}
+                          onClick={() => void runListingAction(listing.id, "publish")}
+                          aria-label={`Publicar ${listing.title}`}
+                        >
+                          {updatingListingId === listing.id ? "Atualizando…" : "Publicar"}
+                        </button>
+                      ) : null}
+                      {canPauseListing(listing.status) ? (
+                        <button
+                          type="button"
+                          className="secondary-action compact-action"
+                          disabled={updatingListingId === listing.id}
+                          onClick={() => void runListingAction(listing.id, "pause")}
+                          aria-label={`Pausar ${listing.title}`}
+                        >
+                          {updatingListingId === listing.id ? "Atualizando…" : "Pausar"}
+                        </button>
+                      ) : null}
+                      {canArchiveListing(listing.status) ? (
+                        <button
+                          type="button"
+                          className="secondary-action compact-action"
+                          disabled={updatingListingId === listing.id}
+                          onClick={() => void runListingAction(listing.id, "archive")}
+                          aria-label={`Arquivar ${listing.title}`}
+                        >
+                          {updatingListingId === listing.id ? "Atualizando…" : "Arquivar"}
+                        </button>
+                      ) : null}
+                      {canEditListing(listing.status) ? (
+                        <Link className="secondary-action action-link" href={`/vender/anuncios/${listing.id}`} aria-label={`Editar ${listing.title}`}>
+                          Editar
+                        </Link>
+                      ) : null}
+                      <Link className="secondary-action action-link" href="#contatos" aria-label={`Ver contatos de ${listing.title}`}>
+                        Ver leads
+                      </Link>
+                    </div>
+                  </article>
+                ))}
+              </div>
             )}
           </section>
 
