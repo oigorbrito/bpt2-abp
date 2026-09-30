@@ -7,10 +7,12 @@ concurrency:
 on:
   pull_request:
     paths:
+      - 'main/BomPraTi/Controllers/PodiumCatalogFeedController.cs'
       - 'modules/catalog/**'
       - 'modules/ingestion/**'
       - 'tests/BomPraTi.PodiumCatalogFeedFixture/**'
       - 'scripts/fresh-migration-gate.sh'
+      - 'scripts/podium-catalog-feed-http-smoke.sh'
       - '.github/workflows/podium-catalog-feed-gate.yml'
 
 permissions:
@@ -46,3 +48,5 @@ jobs:
         run: bash scripts/fresh-migration-gate.sh
       - name: Exercise Podium catalog feed
         run: dotnet run --project tests/BomPraTi.PodiumCatalogFeedFixture/BomPraTi.PodiumCatalogFeedFixture.csproj --configuration Release --no-build
+      - name: Exercise Podium catalog feed over HTTP
+        run: bash scripts/podium-catalog-feed-http-smoke.sh
