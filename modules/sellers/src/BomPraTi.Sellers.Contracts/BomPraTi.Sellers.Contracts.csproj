@@ -1,9 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <RootNamespace>BomPraTi.Sellers.Contracts</RootNamespace>
-    <AssemblyName>BomPraTi.Sellers.Contracts</AssemblyName>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Volo.Abp.Ddd.Application.Contracts" />
-  </ItemGroup>
-</Project>

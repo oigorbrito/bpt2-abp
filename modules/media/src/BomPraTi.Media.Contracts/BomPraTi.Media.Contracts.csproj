@@ -1,9 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <RootNamespace>BomPraTi.Media.Contracts</RootNamespace>
-    <AssemblyName>BomPraTi.Media.Contracts</AssemblyName>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Volo.Abp.Ddd.Application.Contracts" />
-  </ItemGroup>
-</Project>

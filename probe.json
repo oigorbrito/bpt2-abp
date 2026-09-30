@@ -1,0 +1,9 @@
+{
+  "schema": "bpt2.github-pages-static-probe.v1",
+  "purpose": "measure static Pages publication/browser execution only",
+  "contains_credentials": false,
+  "backend_tested": false,
+  "database_tested": false,
+  "privileged_podium_feed_tested": false,
+  "date": "2026-09-30"
+}

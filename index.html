@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>BPT2 GitHub Pages probe</title>
+  <style>
+    body{font-family:system-ui,sans-serif;max-width:760px;margin:40px auto;padding:0 20px;line-height:1.5}
+    code,pre{background:#f3f4f6;padding:.15rem .35rem;border-radius:4px}
+    .ok{font-weight:700}.bad{font-weight:700}
+  </style>
+</head>
+<body>
+  <h1>BPT2 GitHub Pages probe</h1>
+  <p>Static-only probe. No credentials, private artifacts, backend calls, or production data.</p>
+  <ul>
+    <li id="js">JavaScript: pending</li>
+    <li id="json">Same-origin JSON fetch: pending</li>
+    <li>Backend/.NET/PostgreSQL: intentionally not tested here</li>
+  </ul>
+  <pre id="details"></pre>
+<script>
+document.getElementById('js').textContent='JavaScript: PASS';
+document.getElementById('js').className='ok';
+fetch('./probe.json',{cache:'no-store'}).then(r=>{if(!r.ok) throw new Error('HTTP '+r.status); return r.json()})
+.then(x=>{
+  document.getElementById('json').textContent='Same-origin JSON fetch: PASS';
+  document.getElementById('json').className='ok';
+  document.getElementById('details').textContent=JSON.stringify({origin:location.origin,path:location.pathname,probe:x},null,2);
+}).catch(e=>{
+  document.getElementById('json').textContent='Same-origin JSON fetch: FAIL';
+  document.getElementById('json').className='bad';
+  document.getElementById('details').textContent=String(e);
+});
+</script>
+</body>
+</html>
