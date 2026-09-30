@@ -36,7 +36,8 @@ export async function getVehicleCatalogPage(
   }
 
   const response = await fetch(url, {
-    cache: "no-store",
+    // ⚡ Bolt: Use Next.js data cache to prevent unnecessary backend requests for static vehicle data. Revalidate hourly.
+    next: { revalidate: 3600 },
     headers: { Accept: "application/json" },
   });
 
@@ -51,7 +52,8 @@ export async function getVehicle(id: string): Promise<VehicleRef | null> {
   const response = await fetch(
     new URL(`/api/app/vehicle-catalog/${encodeURIComponent(id)}`, `${serverApiBaseUrl()}/`),
     {
-      cache: "no-store",
+      // ⚡ Bolt: Cache individual vehicle lookups for an hour to reduce DB load for common vehicles.
+      next: { revalidate: 3600 },
       headers: { Accept: "application/json" },
     },
   );
