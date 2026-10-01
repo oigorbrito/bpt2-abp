@@ -42,7 +42,7 @@ A static Pages probe may be used to test publication and browser-only checks. It
 - [docs/QUALITY.md](../QUALITY.md)
 - [docs/LOCAL-DEVELOPMENT.md](../LOCAL-DEVELOPMENT.md)
 - [ADR 0012 — Repository topology](../adr/0012-repository-topology.md)
-- [Plan 0072](../exec-plans/active/0072-podium-catalog-feed-http-v1.md)
+- [Plan 0072](../exec-plans/completed/0072-podium-catalog-feed-http-v1.md)
 
 ## Update rule
 
