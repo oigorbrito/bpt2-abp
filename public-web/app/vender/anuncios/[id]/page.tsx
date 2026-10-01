@@ -479,13 +479,13 @@ export default function EditSellerListingPage() {
                       <span>Posição {index + 1} da galeria</span>
                     </div>
                     <div className="seller-photo-actions">
-                      <button type="button" className="secondary-action compact-action" disabled={photoBusy || index === 0} onClick={() => void movePhoto(index, -1)}>
+                      <button type="button" className="secondary-action compact-action" aria-label={`Mover foto ${index + 1} para cima`} disabled={photoBusy || index === 0} onClick={() => void movePhoto(index, -1)}>
                         Subir
                       </button>
-                      <button type="button" className="secondary-action compact-action" disabled={photoBusy || index === detail.photos.length - 1} onClick={() => void movePhoto(index, 1)}>
+                      <button type="button" className="secondary-action compact-action" aria-label={`Mover foto ${index + 1} para baixo`} disabled={photoBusy || index === detail.photos.length - 1} onClick={() => void movePhoto(index, 1)}>
                         Descer
                       </button>
-                      <button type="button" className="secondary-action compact-action" disabled={photoBusy} onClick={() => void removePhoto(photo.id)}>
+                      <button type="button" className="secondary-action compact-action" aria-label={`Remover foto ${index + 1}`} disabled={photoBusy} onClick={() => void removePhoto(photo.id)}>
                         Remover
                       </button>
                     </div>
