@@ -13,6 +13,8 @@ on:
       - 'tests/BomPraTi.PodiumCatalogFeedFixture/**'
       - 'scripts/fresh-migration-gate.sh'
       - 'scripts/podium-catalog-feed-http-smoke.sh'
+      - 'docs/exec-plans/active/0072-podium-catalog-feed-http-v1.md'
+      - 'docs/agent/CURRENT-WORK.md'
       - '.github/workflows/podium-catalog-feed-gate.yml'
 
 permissions:
