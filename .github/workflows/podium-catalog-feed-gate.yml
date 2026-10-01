@@ -42,10 +42,20 @@ jobs:
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: '10.0.x'
+      - name: Syntax check Podium HTTP smoke
+        run: bash -n scripts/podium-catalog-feed-http-smoke.sh
       - name: Build focused Podium fixture
         run: dotnet build tests/BomPraTi.PodiumCatalogFeedFixture/BomPraTi.PodiumCatalogFeedFixture.csproj --configuration Release
       - name: Apply fresh database
         run: bash scripts/fresh-migration-gate.sh
+      - name: Seed host identity and OpenIddict data
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ConnectionStrings__Default="$BPT_DB_CONNECTION"
+          export ASPNETCORE_ENVIRONMENT=Development
+          cd main/BomPraTi
+          dotnet run --configuration Release --no-build -- --migrate-database
       - name: Exercise Podium catalog feed
         run: dotnet run --project tests/BomPraTi.PodiumCatalogFeedFixture/BomPraTi.PodiumCatalogFeedFixture.csproj --configuration Release --no-build
       - name: Exercise Podium catalog feed over HTTP
