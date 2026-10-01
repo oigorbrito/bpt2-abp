@@ -1,8 +1,8 @@
 # Plan 0072 — Podium catalog feed HTTP V1
 
-Status: **ATIVO**
+Status: **CONCLUÍDO**
 
-Validation state: **CURRENT-MAIN REBASE / BPT2 HOSTED CONSUMER GATE PASS; PODIUM7 HOSTED PRODUCER VALIDATION STILL BLOCKED**
+Validation state: **HOSTED CONSUMER GATE PASS / PODIUM7 CROSS-REPOSITORY E2E PASS**
 
 ## Objetivo / outcome
 
@@ -49,9 +49,9 @@ Congelar e provar uma entrada HTTP externa explícita para o já existente Podiu
 ## Checkpoints
 
 - C1: endpoint explícito e smoke adicionados — **ENCODED**.
-- C2: gate focado atualizado — **ENCODED**; execução hospedada bloqueada antes dos steps.
+- C2: gate focado atualizado — **PASS** on exact-head hosted execution.
 - C3: self-review de auth, contract duplication e failure semantics — **ENCODED/REVIEWED**.
-- C4: PR pronta somente com checks aplicáveis verdes — **PENDING EXTERNAL CI**.
+- C4: exact-head checks aplicáveis verdes — **PASS**; PR #246 merged.
 
 ## Decisões abertas
 
@@ -70,6 +70,9 @@ Congelar e provar uma entrada HTTP externa explícita para o já existente Podiu
 - A lógica existente do `IPodiumCatalogFeedAppService` permanece autoridade de importação; o HTTP controller é somente adapter de transporte.
 - O contrato externo do primeiro slice continua Catalog JSON `2.0`; enrichment permanece aditivo e posterior.
 - A rota explícita evita tornar convenção ABP implícita parte acidental do contrato entre repositórios.
-- O plano não será marcado concluído nem a PR promovida enquanto o gate exato não executar repository steps e passar.
+- O plano foi encerrado somente após execução hosted real do gate exato e E2E cross-repo correspondente.
 
 - 2026-09-30 — integração remontada sobre a `main` atual para evitar merge de snapshot antigo; rerun dos jobs hospedados novamente terminou sem steps, preservando o blocker externo.
+
+- 2026-10-01 — BPT2 exact-head run `36865432643` passed PostgreSQL bootstrap, focused fixture and HTTP smoke; PR #246 merged as `e19249bb772c69348eb7594a9ff1dcdbf2802e1e`.
+- 2026-10-01 — Podium7 exact-head run `36867723586` passed real `Podium7 -> BPT2 HTTP -> PostgreSQL` E2E; PR #345 merged as `f54c194ff6e47f62b8c411cc07a02556bb558651`.
