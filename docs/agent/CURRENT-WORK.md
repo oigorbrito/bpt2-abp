@@ -1,53 +1,39 @@
 # Current work
 
-Last verified: **2026-09-10**
+Last verified: **2026-09-30**
 
 Snapshot volatile only.
 
 ## In flight
 
-- No product wave is currently active.
-- `PRODUCT-WAVE-LISTING-DECISION-SUPPORT-01` is complete for its defined product and SSR/HTTP runtime acceptance.
-- Repository-topology evidence series Plans 0062–0070 is complete.
-- Plan 0071 records the resulting architecture decision in ADR 0012.
+- Plan 0072 — Podium Catalog Feed HTTP V1 is active on `integration/podium7-http-v1-current-main`.
+- Consumer route: `POST /api/integrations/podium/catalog/v1/vehicles`.
+- Producer counterpart is being rebased from Podium7 PR #319 onto current Podium7 `main`.
+- Existing BPT2 repository-topology decision remains `KEEP_MONOREPO` for backend + `public-web`; Podium7 ↔ BPT2 repository topology remains a separate question.
 
-## Repository topology
+## Acceptance target
 
-Current decision: **KEEP_MONOREPO** for the BPT2 backend + `public-web` repository topology.
+The exact current-main integration must:
 
-This is a bounded least-change decision under the measured BPT2 evidence, not a claim that monorepos are universally superior and not a requirement for atomic backend/frontend deployment.
+- expose the explicit HTTP route in Swagger;
+- reject anonymous access with 401;
+- reject authenticated non-admin access with 403;
+- return 400 for invalid Catalog JSON 2.0 projection inputs;
+- import a valid Podium vehicle into PostgreSQL;
+- preserve canonical ID, redirects, replay identity and VehicleId;
+- execute the focused in-process fixture plus PostgreSQL-backed HTTP smoke.
 
-Key evidence:
+## Blockers
 
-- split is mechanically build-feasible;
-- historical BPT2 work has non-trivial cross-boundary and contract coupling;
-- split did not demonstrate a material CI/critical-path advantage under preregistered thresholds;
-- raw cross-boundary lead-time association attenuated after size/scope adjustment;
-- controlled same-change and deploy/rollback rehearsals showed additional explicit integration/deployment boundaries for split;
-- breaking independent rollout required bridge/coordinated rollout in the Plan 0070 workload.
+| ID | Blocker | Evidence | Disposition |
+| --- | --- | --- | --- |
+| BR-02 | main integration policy is still tracked by #160 | repository administration | keep PR-based integration |
+| BR-03 | GitHub-hosted runners still fail before repository steps execute | 2026-09-30 rerun of prior exact-head jobs again completed with `steps: null` | do not claim hosted PASS; keep gate intact |
+| BR-04 | GitHub Pages cannot host .NET/Python/PostgreSQL and branch publishing still deploys through a Pages workflow | GitHub Pages documentation + empirical runner state | Pages may be tested only as static/browser/report surface, not as replacement for integration runtime |
 
-Canonical decision: [`../adr/0012-repository-topology.md`](../adr/0012-repository-topology.md).
+## GitHub Pages experiment boundary
 
-## Blocker register
-
-| ID | Blocker | Affects | Evidence | Required unblock | Can work continue? |
-| --- | --- | --- | --- | --- | --- |
-| BR-01 | Resolved for the defined remote SSR/HTTP runtime validation | Listing decision-support runtime smoke | PR #185 exact-head runtime validation passed with PostgreSQL 17 + real API + production `public-web` SSR | None for measured boundary | yes |
-| BR-02 | `#160` main-branch integration policy remains administrative unless remote state has changed | repository administration | last verified state had `main` unprotected and no repository ruleset | repository administration authority / current remote revalidation | yes |
-
-## Immediate blocker
-
-No repo-internal product blocker is registered here. Repository administration issue #160 remains a separate boundary until revalidated.
-
-## Remote integration state
-
-- canonical remote repository: `oigorbrito/bpt2-abp`;
-- previous `tihotm/bpt2-abp` location redirects to the canonical repository;
-- repository-topology studies through Plan 0070 are integrated into `main`.
-
-## Next closure item
-
-After Plan 0071 is integrated, do not create another architecture benchmark without a new material hypothesis or an ADR 0012 reopen trigger. Reinspect product/quality/issue state and choose the next real product gap by evidence.
+A static Pages probe may be used to test publication and browser-only checks. It must not contain credentials, bearer tokens, private artifacts, or claim to execute the privileged Podium → BPT2 feed path.
 
 ## Canonical links
 
@@ -55,18 +41,8 @@ After Plan 0071 is integrated, do not create another architecture benchmark with
 - [docs/QUALITY.md](../QUALITY.md)
 - [docs/LOCAL-DEVELOPMENT.md](../LOCAL-DEVELOPMENT.md)
 - [ADR 0012 — Repository topology](../adr/0012-repository-topology.md)
-- [docs/baselines/POST_MVP_OPERATIONAL_BASELINE_V1.md](../baselines/POST_MVP_OPERATIONAL_BASELINE_V1.md)
-- [docs/closure/POST_MVP_OPERATIONAL_CLOSURE_MATRIX.md](../closure/POST_MVP_OPERATIONAL_CLOSURE_MATRIX.md)
-
-## Source of runtime truth
-
-- product: [`../PRODUCT.md`](../PRODUCT.md);
-- coverage: [`../audits/2026-08-27-unified-functional-coverage-matrix.md`](../audits/2026-08-27-unified-functional-coverage-matrix.md);
-- discovery baseline: [`../audits/2026-08-29-advanced-discovery-baseline.md`](../audits/2026-08-29-advanced-discovery-baseline.md);
-- typo scoring: [`../audits/2026-08-30-discovery-typo-scoring-comparison.md`](../audits/2026-08-30-discovery-typo-scoring-comparison.md);
-- metamorphic: [`../audits/2026-08-30-discovery-metamorphic-typo-robustness.md`](../audits/2026-08-30-discovery-metamorphic-typo-robustness.md);
-- generated facts: [`../generated/repository-facts.md`](../generated/repository-facts.md).
+- [Plan 0072](../exec-plans/active/0072-podium-catalog-feed-http-v1.md)
 
 ## Update rule
 
-Atualize somente quando mudar outcome, plano, acceptance target ou blocker real.
+Atualize somente quando mudar outcome, acceptance target ou blocker real.
