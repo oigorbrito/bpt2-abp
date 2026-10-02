@@ -1,0 +1,36 @@
+name: Regenerate Next lockfile
+on:
+  push:
+    branches:
+      - security/next-16.3.8
+    paths:
+      - public-web/package.json
+      - .github/workflows/regen-next-lock.yml
+permissions:
+  contents: write
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: security/next-16.3.8
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+          cache: npm
+          cache-dependency-path: public-web/package-lock.json
+      - name: Regenerate package lock
+        working-directory: public-web
+        run: npm install --package-lock-only
+      - name: Commit lockfile
+        run: |
+          if git diff --quiet -- public-web/package-lock.json; then
+            echo "No lockfile changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public-web/package-lock.json
+          git commit -m "chore: regenerate Next.js lockfile"
+          git push origin HEAD:security/next-16.3.8
