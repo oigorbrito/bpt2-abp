@@ -9,7 +9,7 @@ Quando houver conflito entre este guia e comportamento executado pelo repositór
 - .NET 10; `global.json` fixa `10.0.401` com `rollForward: latestFeature`.
 - ABP CLI `10.6.1` e `dotnet-ef` `10.0.12` vêm do manifest `.config/dotnet-tools.json`.
 - PostgreSQL 17 é a versão exercitada pelos gates atuais.
-- Node.js `22.13.0` é a versão exercitada pelo Public Web Gate e pelo Public Buyer HTTP Gate; `public-web/package.json` aceita `>=22.13.0`.
+- Node.js `24.21.0` é a versão exercitada pelo Public Web Gate e pelo Public Buyer HTTP Gate; `public-web/package.json` aceita `>=24.21.0`.
 - API local canônica para o fluxo por shell: `http://127.0.0.1:5093`.
 - Public web em desenvolvimento: `http://localhost:3000`.
 
@@ -22,7 +22,7 @@ Instale somente o necessário para o slice que será executado:
 1. Git.
 2. SDK .NET 10 compatível com o `global.json`.
 3. PostgreSQL 17, local ou em container.
-4. Node.js 22.13.0 ou superior dentro da linha suportada pelo projeto, quando for trabalhar no `public-web`.
+4. Node.js 24.21.0 ou superior dentro da linha 24 LTS suportada pelo projeto, quando for trabalhar no `public-web`.
 5. Bash para executar os scripts versionados do repositório. Em Windows, use um ambiente Bash compatível, como WSL ou Git Bash, para esses scripts.
 
 Valide as ferramentas a partir da raiz do repositório:
