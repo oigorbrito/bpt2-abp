@@ -1,0 +1,13 @@
+/app/modules/catalog/src/BomPraTi.Catalog.Contracts/bin/Release/net10.0/BomPraTi.Catalog.Contracts.deps.json
+/app/modules/catalog/src/BomPraTi.Catalog.Contracts/bin/Release/net10.0/BomPraTi.Catalog.Contracts.dll
+/app/modules/catalog/src/BomPraTi.Catalog.Contracts/bin/Release/net10.0/BomPraTi.Catalog.Contracts.pdb
+/app/modules/catalog/src/BomPraTi.Catalog.Contracts/obj/Release/net10.0/BomPraTi.Catalog.Contracts.csproj.AssemblyReference.cache
+/app/modules/catalog/src/BomPraTi.Catalog.Contracts/obj/Release/net10.0/BomPraTi.Catalog.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+/app/modules/catalog/src/BomPraTi.Catalog.Contracts/obj/Release/net10.0/BomPraTi.Catalog.Contracts.AssemblyInfoInputs.cache
+/app/modules/catalog/src/BomPraTi.Catalog.Contracts/obj/Release/net10.0/BomPraTi.Catalog.Contracts.AssemblyInfo.cs
+/app/modules/catalog/src/BomPraTi.Catalog.Contracts/obj/Release/net10.0/BomPraTi.Catalog.Contracts.csproj.CoreCompileInputs.cache
+/app/modules/catalog/src/BomPraTi.Catalog.Contracts/obj/Release/net10.0/BomPraTi.Catalog.Contracts.sourcelink.json
+/app/modules/catalog/src/BomPraTi.Catalog.Contracts/obj/Release/net10.0/BomPraTi.Catalog.Contracts.dll
+/app/modules/catalog/src/BomPraTi.Catalog.Contracts/obj/Release/net10.0/refint/BomPraTi.Catalog.Contracts.dll
+/app/modules/catalog/src/BomPraTi.Catalog.Contracts/obj/Release/net10.0/BomPraTi.Catalog.Contracts.pdb
+/app/modules/catalog/src/BomPraTi.Catalog.Contracts/obj/Release/net10.0/ref/BomPraTi.Catalog.Contracts.dll

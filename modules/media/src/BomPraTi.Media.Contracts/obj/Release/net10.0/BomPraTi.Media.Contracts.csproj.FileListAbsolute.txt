@@ -1,0 +1,13 @@
+/app/modules/media/src/BomPraTi.Media.Contracts/bin/Release/net10.0/BomPraTi.Media.Contracts.deps.json
+/app/modules/media/src/BomPraTi.Media.Contracts/bin/Release/net10.0/BomPraTi.Media.Contracts.dll
+/app/modules/media/src/BomPraTi.Media.Contracts/bin/Release/net10.0/BomPraTi.Media.Contracts.pdb
+/app/modules/media/src/BomPraTi.Media.Contracts/obj/Release/net10.0/BomPraTi.Media.Contracts.csproj.AssemblyReference.cache
+/app/modules/media/src/BomPraTi.Media.Contracts/obj/Release/net10.0/BomPraTi.Media.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+/app/modules/media/src/BomPraTi.Media.Contracts/obj/Release/net10.0/BomPraTi.Media.Contracts.AssemblyInfoInputs.cache
+/app/modules/media/src/BomPraTi.Media.Contracts/obj/Release/net10.0/BomPraTi.Media.Contracts.AssemblyInfo.cs
+/app/modules/media/src/BomPraTi.Media.Contracts/obj/Release/net10.0/BomPraTi.Media.Contracts.csproj.CoreCompileInputs.cache
+/app/modules/media/src/BomPraTi.Media.Contracts/obj/Release/net10.0/BomPraTi.Media.Contracts.sourcelink.json
+/app/modules/media/src/BomPraTi.Media.Contracts/obj/Release/net10.0/BomPraTi.Media.Contracts.dll
+/app/modules/media/src/BomPraTi.Media.Contracts/obj/Release/net10.0/refint/BomPraTi.Media.Contracts.dll
+/app/modules/media/src/BomPraTi.Media.Contracts/obj/Release/net10.0/BomPraTi.Media.Contracts.pdb
+/app/modules/media/src/BomPraTi.Media.Contracts/obj/Release/net10.0/ref/BomPraTi.Media.Contracts.dll

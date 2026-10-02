@@ -1,0 +1,13 @@
+/app/modules/marketplace/src/BomPraTi.Marketplace.Contracts/bin/Release/net10.0/BomPraTi.Marketplace.Contracts.deps.json
+/app/modules/marketplace/src/BomPraTi.Marketplace.Contracts/bin/Release/net10.0/BomPraTi.Marketplace.Contracts.dll
+/app/modules/marketplace/src/BomPraTi.Marketplace.Contracts/bin/Release/net10.0/BomPraTi.Marketplace.Contracts.pdb
+/app/modules/marketplace/src/BomPraTi.Marketplace.Contracts/obj/Release/net10.0/BomPraTi.Marketplace.Contracts.csproj.AssemblyReference.cache
+/app/modules/marketplace/src/BomPraTi.Marketplace.Contracts/obj/Release/net10.0/BomPraTi.Marketplace.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+/app/modules/marketplace/src/BomPraTi.Marketplace.Contracts/obj/Release/net10.0/BomPraTi.Marketplace.Contracts.AssemblyInfoInputs.cache
+/app/modules/marketplace/src/BomPraTi.Marketplace.Contracts/obj/Release/net10.0/BomPraTi.Marketplace.Contracts.AssemblyInfo.cs
+/app/modules/marketplace/src/BomPraTi.Marketplace.Contracts/obj/Release/net10.0/BomPraTi.Marketplace.Contracts.csproj.CoreCompileInputs.cache
+/app/modules/marketplace/src/BomPraTi.Marketplace.Contracts/obj/Release/net10.0/BomPraTi.Marketplace.Contracts.sourcelink.json
+/app/modules/marketplace/src/BomPraTi.Marketplace.Contracts/obj/Release/net10.0/BomPraTi.Marketplace.Contracts.dll
+/app/modules/marketplace/src/BomPraTi.Marketplace.Contracts/obj/Release/net10.0/refint/BomPraTi.Marketplace.Contracts.dll
+/app/modules/marketplace/src/BomPraTi.Marketplace.Contracts/obj/Release/net10.0/BomPraTi.Marketplace.Contracts.pdb
+/app/modules/marketplace/src/BomPraTi.Marketplace.Contracts/obj/Release/net10.0/ref/BomPraTi.Marketplace.Contracts.dll

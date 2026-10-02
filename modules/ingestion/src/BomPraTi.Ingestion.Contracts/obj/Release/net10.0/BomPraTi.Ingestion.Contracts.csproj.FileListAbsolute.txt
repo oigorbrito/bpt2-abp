@@ -1,0 +1,13 @@
+/app/modules/ingestion/src/BomPraTi.Ingestion.Contracts/bin/Release/net10.0/BomPraTi.Ingestion.Contracts.deps.json
+/app/modules/ingestion/src/BomPraTi.Ingestion.Contracts/bin/Release/net10.0/BomPraTi.Ingestion.Contracts.dll
+/app/modules/ingestion/src/BomPraTi.Ingestion.Contracts/bin/Release/net10.0/BomPraTi.Ingestion.Contracts.pdb
+/app/modules/ingestion/src/BomPraTi.Ingestion.Contracts/obj/Release/net10.0/BomPraTi.Ingestion.Contracts.csproj.AssemblyReference.cache
+/app/modules/ingestion/src/BomPraTi.Ingestion.Contracts/obj/Release/net10.0/BomPraTi.Ingestion.Contracts.GeneratedMSBuildEditorConfig.editorconfig
+/app/modules/ingestion/src/BomPraTi.Ingestion.Contracts/obj/Release/net10.0/BomPraTi.Ingestion.Contracts.AssemblyInfoInputs.cache
+/app/modules/ingestion/src/BomPraTi.Ingestion.Contracts/obj/Release/net10.0/BomPraTi.Ingestion.Contracts.AssemblyInfo.cs
+/app/modules/ingestion/src/BomPraTi.Ingestion.Contracts/obj/Release/net10.0/BomPraTi.Ingestion.Contracts.csproj.CoreCompileInputs.cache
+/app/modules/ingestion/src/BomPraTi.Ingestion.Contracts/obj/Release/net10.0/BomPraTi.Ingestion.Contracts.sourcelink.json
+/app/modules/ingestion/src/BomPraTi.Ingestion.Contracts/obj/Release/net10.0/BomPraTi.Ingestion.Contracts.dll
+/app/modules/ingestion/src/BomPraTi.Ingestion.Contracts/obj/Release/net10.0/refint/BomPraTi.Ingestion.Contracts.dll
+/app/modules/ingestion/src/BomPraTi.Ingestion.Contracts/obj/Release/net10.0/BomPraTi.Ingestion.Contracts.pdb
+/app/modules/ingestion/src/BomPraTi.Ingestion.Contracts/obj/Release/net10.0/ref/BomPraTi.Ingestion.Contracts.dll
