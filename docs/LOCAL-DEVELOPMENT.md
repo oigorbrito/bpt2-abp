@@ -7,7 +7,7 @@ Quando houver conflito entre este guia e comportamento executado pelo repositór
 ## Baseline verificado
 
 - .NET 10; `global.json` fixa `10.0.100` com `rollForward: latestFeature`.
-- ABP CLI `10.6.0` e `dotnet-ef` `10.0.9` vêm do manifest `.config/dotnet-tools.json`.
+- ABP CLI `10.6.1` e `dotnet-ef` `10.0.9` vêm do manifest `.config/dotnet-tools.json`.
 - PostgreSQL 17 é a versão exercitada pelos gates atuais.
 - Node.js `22.13.0` é a versão exercitada pelo Public Web Gate e pelo Public Buyer HTTP Gate; `public-web/package.json` aceita `>=22.13.0`.
 - API local canônica para o fluxo por shell: `http://127.0.0.1:5093`.
