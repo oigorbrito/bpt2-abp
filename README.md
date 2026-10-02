@@ -161,7 +161,7 @@ com autenticação, retry, replay, redirects e falhas de contrato tratadas expli
 
 ## Arquitetura
 
-BPT2 é um **modular monolith ABP 10.6** sobre **.NET 10** e **PostgreSQL 17**.
+BPT2 é um **modular monolith ABP 10.6** sobre **.NET 10** e **PostgreSQL 18.6**.
 
 ```text
 Host / Composition Root
@@ -189,7 +189,7 @@ Ver: [ARCHITECTURE.md](ARCHITECTURE.md).
 ## Stack
 
 - **Backend:** C# 14, .NET 10, ASP.NET Core, ABP 10.6
-- **Data:** PostgreSQL 17, EF Core
+- **Data:** PostgreSQL 18.6, EF Core
 - **Public web:** Next.js / Node.js
 - **Auth:** OpenIddict / OIDC Authorization Code + PKCE
 - **Validation:** architecture/boundary tests, fresh-database gates, HTTP smokes, CI
