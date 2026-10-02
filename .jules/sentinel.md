@@ -1,0 +1,4 @@
+## 2024-05-24 - Open Redirect in Next.js returnTo parameters
+**Vulnerability:** Found Open Redirect vulnerabilities in `public-web/app/anuncios/[id]/page.tsx` and `public-web/app/favoritos/callback/page.tsx` where user-provided `returnTo` paths were validated with `startsWith("/")`.
+**Learning:** Checking for `.startsWith("/")` is insufficient, because an attacker can supply a protocol-relative URL starting with `//` (e.g., `//evil.com`), which bypasses the check and forces the user's browser to navigate to an external site.
+**Prevention:** Always validate local redirect URLs in the frontend explicitly using both `.startsWith("/")` and `!.startsWith("//")` to prevent protocol-relative redirects.
