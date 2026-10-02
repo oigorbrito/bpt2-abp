@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "volo.abp.cli": {
-      "version": "10.6.0",
+      "version": "10.6.1",
       "commands": ["abp"]
     },
     "dotnet-ef": {
