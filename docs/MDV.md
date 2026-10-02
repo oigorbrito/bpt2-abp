@@ -45,7 +45,7 @@ Estados: PASSA, NÃO PASSA, DECIDIDO, NÃO DECIDIDO, ADIADO.
 
 ## Evidência do Gate 01
 
-Execução em GitHub Actions com ABP 10.6, .NET 10 e PostgreSQL 17:
+Execução em GitHub Actions com ABP 10.6, .NET 10 e PostgreSQL 18.6:
 
 - arquitetura: checker positivo e ataques negativos passaram;
 - host: template oficial ABP 10.6 gerado, cinco módulos wired e build Release passou;
