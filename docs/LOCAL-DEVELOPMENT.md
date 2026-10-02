@@ -8,7 +8,7 @@ Quando houver conflito entre este guia e comportamento executado pelo repositór
 
 - .NET 10; `global.json` fixa `10.0.401` com `rollForward: latestFeature`.
 - ABP CLI `10.6.1` e `dotnet-ef` `10.0.12` vêm do manifest `.config/dotnet-tools.json`.
-- PostgreSQL 17 é a versão exercitada pelos gates atuais.
+- PostgreSQL 18.6 é a versão exercitada pelos gates atuais.
 - Node.js `24.21.0` é a versão exercitada pelo Public Web Gate e pelo Public Buyer HTTP Gate; `public-web/package.json` aceita `>=24.21.0`.
 - API local canônica para o fluxo por shell: `http://127.0.0.1:5093`.
 - Public web em desenvolvimento: `http://localhost:3000`.
@@ -21,7 +21,7 @@ Instale somente o necessário para o slice que será executado:
 
 1. Git.
 2. SDK .NET 10 compatível com o `global.json`.
-3. PostgreSQL 17, local ou em container.
+3. PostgreSQL 18.6, local ou em container.
 4. Node.js 24.21.0 ou superior dentro da linha 24 LTS suportada pelo projeto, quando for trabalhar no `public-web`.
 5. Bash para executar os scripts versionados do repositório. Em Windows, use um ambiente Bash compatível, como WSL ou Git Bash, para esses scripts.
 
@@ -38,9 +38,9 @@ dotnet tool restore
 
 ## PostgreSQL local
 
-Os gates usam PostgreSQL 17 com database `BomPraTi`. Para reduzir diferença entre máquina local e CI, o exemplo abaixo usa as mesmas credenciais descartáveis do serviço de CI.
+Os gates usam PostgreSQL 18.6 com database `BomPraTi`. Para reduzir diferença entre máquina local e CI, o exemplo abaixo usa as mesmas credenciais descartáveis do serviço de CI.
 
-Se você já possui PostgreSQL 17, crie um database local equivalente e apenas ajuste `BPT_DB_CONNECTION`.
+Se você já possui PostgreSQL 18.6, crie um database local equivalente e apenas ajuste `BPT_DB_CONNECTION`.
 
 Uma opção com container é:
 
@@ -50,7 +50,7 @@ docker run --name bpt2-postgres \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
   -p 5432:5432 \
-  -d postgres:17-alpine
+  -d postgres:18.6-alpine
 ```
 
 Depois, na sessão de shell usada para o backend:
