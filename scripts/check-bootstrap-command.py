@@ -10,8 +10,8 @@ manifest = (ROOT / ".config/dotnet-tools.json").read_text(encoding="utf-8")
 
 errors: list[str] = []
 
-if '"volo.abp.cli"' not in manifest or '"version": "10.6.0"' not in manifest:
-    errors.append("dotnet tool manifest must pin classic Volo.Abp.Cli 10.6.0")
+if '"volo.abp.cli"' not in manifest or '"version": "10.6.1"' not in manifest:
+    errors.append("dotnet tool manifest must pin classic Volo.Abp.Cli 10.6.1")
 
 required = [
     "--template app-nolayers",
