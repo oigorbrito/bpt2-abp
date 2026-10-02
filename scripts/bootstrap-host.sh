@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MAIN="$ROOT/main"
 HOST_PROJECT="$MAIN/BomPraTi/BomPraTi.csproj"
-ABP_VERSION="10.6.0"
+ABP_VERSION="10.6.1"
 
 command -v dotnet >/dev/null || { echo "dotnet SDK is required (net10.0)." >&2; exit 2; }
 
