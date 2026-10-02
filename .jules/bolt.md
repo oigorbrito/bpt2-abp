@@ -1,0 +1,3 @@
+## 2024-06-25 - Next.js Default Cache Anti-pattern for Static Data
+**Learning:** A common performance anti-pattern in the Next.js frontend (`public-web`) is defaulting to `cache: 'no-store'` for static backend API fetches. This bypasses the built-in Next.js server-side cache and revalidation logic, causing unnecessary redundant requests to the backend for data that rarely changes (like the vehicle catalog).
+**Action:** Exclusively rely on Next.js server-side cache/revalidation (`next: { revalidate: [seconds] }`) for static data. Do not implement custom in-memory `Map` caching for Next.js API fetches, as it bypasses built-in revalidation logic and causes unbounded memory leaks.
