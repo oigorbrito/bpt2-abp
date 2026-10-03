@@ -17,6 +17,7 @@ export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<PublicListing[]>([]);
   const [priceDrops, setPriceDrops] = useState<FavoritePriceDropMatch[]>([]);
   const [loading, setLoading] = useState(true);
+  const [removingId, setRemovingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -44,11 +45,14 @@ export default function FavoritesPage() {
   async function remove(listingId: string) {
     if (!user) return;
     setError(null);
+    setRemovingId(listingId);
     try {
       await removeFavorite(user.access_token, listingId);
       setFavorites((items) => items.filter((item) => item.id !== listingId));
     } catch (reason: unknown) {
       setError(reason instanceof Error ? reason.message : "Não foi possível remover o favorito.");
+    } finally {
+      setRemovingId(null);
     }
   }
 
@@ -103,8 +107,14 @@ export default function FavoritesPage() {
                       <h3><Link href={`/anuncios/${listing.id}`}>{listing.title}</Link></h3>
                       <p className="listing-price">{formatPrice(listing.price)}</p>
                       <p className="listing-location">{listing.city} · {listing.stateCode}</p>
-                      <button className="secondary-action" type="button" onClick={() => remove(listing.id)}>
-                        Remover dos favoritos
+                      <button
+                        aria-busy={removingId === listing.id}
+                        className="secondary-action"
+                        disabled={removingId === listing.id}
+                        type="button"
+                        onClick={() => void remove(listing.id)}
+                      >
+                        {removingId === listing.id ? "Removendo…" : "Remover dos favoritos"}
                       </button>
                     </div>
                   </article>
