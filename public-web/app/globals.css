@@ -479,6 +479,15 @@ h3 {
   cursor: pointer;
 }
 
+a:focus-visible,
+button:focus-visible,
+.primary-action:focus-visible,
+.secondary-action:focus-visible,
+.whatsapp-cta:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
 .primary-action {
   background: #171717;
   color: #fff;
