@@ -22,7 +22,7 @@ export default function SellerCallbackPage() {
     <main className="shell seller-shell">
       <p className="eyebrow">Área do vendedor</p>
       <h1>Concluindo login…</h1>
-      {error ? <p className="seller-auth-error">{error}</p> : <p className="lede">Validando o retorno do Auth Server.</p>}
+      {error ? <p className="seller-auth-error" role="alert">{error}</p> : <p className="lede">Validando o retorno do Auth Server.</p>}
     </main>
   );
 }
