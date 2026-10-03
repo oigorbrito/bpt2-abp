@@ -27,6 +27,7 @@ jobs:
         run: |
           docker build \
             --file deploy/staging/Dockerfile.web \
+            --build-arg BPT_PUBLIC_BASE_URL=https://web.example.invalid \
             --build-arg NEXT_PUBLIC_BPT_API_BASE_URL=https://api.example.invalid \
             --build-arg NEXT_PUBLIC_BPT_AUTHORITY=https://api.example.invalid \
             --tag bpt2-public-web:staging .
