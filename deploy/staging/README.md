@@ -34,7 +34,7 @@ API:
 Web:
 
 - `BPT_API_BASE_URL` at runtime for server-side API calls;
-- `BPT_PUBLIC_BASE_URL` at runtime for canonical/public metadata;
+- `BPT_PUBLIC_BASE_URL` is required at build time for production metadata and should also be present at runtime;
 - `NEXT_PUBLIC_BPT_API_BASE_URL` and `NEXT_PUBLIC_BPT_AUTHORITY` are build-time public origins because Next.js embeds public variables into the browser bundle.
 
 The hosted acceptance target must prove the browser-visible Next.js UI, the BPT2 API/PostgreSQL path, and the Podium7 catalog feed separately.
