@@ -24,7 +24,7 @@ export default function BuyerCallbackPage() {
     <main className="shell seller-shell">
       <p className="eyebrow">Conta do comprador</p>
       <h1>Concluindo login…</h1>
-      {error ? <p className="seller-auth-error">{error}</p> : null}
+      {error ? <p className="seller-auth-error" role="alert">{error}</p> : null}
     </main>
   );
 }
