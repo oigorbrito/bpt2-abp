@@ -35,8 +35,10 @@ export async function getVehicleCatalogPage(
     url.searchParams.set("query", query.trim());
   }
 
+  // ⚡ Bolt: Use ISR instead of no-store to avoid refetching static catalog data on every request.
+  // Impact: Significantly reduces TTFB and backend load by caching responses for 1 hour.
   const response = await fetch(url, {
-    cache: "no-store",
+    next: { revalidate: 3600 },
     headers: { Accept: "application/json" },
   });
 
@@ -48,10 +50,12 @@ export async function getVehicleCatalogPage(
 }
 
 export async function getVehicle(id: string): Promise<VehicleRef | null> {
+  // ⚡ Bolt: Cache individual vehicle details to prevent repeated backend queries.
+  // Impact: Reduces repetitive database reads for popular vehicles, caching for 1 hour.
   const response = await fetch(
     new URL(`/api/app/vehicle-catalog/${encodeURIComponent(id)}`, `${serverApiBaseUrl()}/`),
     {
-      cache: "no-store",
+      next: { revalidate: 3600 },
       headers: { Accept: "application/json" },
     },
   );
