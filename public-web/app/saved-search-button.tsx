@@ -28,7 +28,7 @@ export default function SavedSearchButton({ criteria }: { criteria: SavedSearchC
 
   return (
     <span>
-      <button className="secondary-action" disabled={saving} onClick={save} type="button">
+      <button aria-busy={saving} className="secondary-action" disabled={saving} onClick={save} type="button">
         {saving ? "Salvando…" : "Salvar busca"}
       </button>
       {status ? <span aria-live="polite"> {status}</span> : null}
