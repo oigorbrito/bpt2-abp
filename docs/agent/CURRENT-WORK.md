@@ -6,84 +6,85 @@ Snapshot volatile only.
 
 ## Current outcome
 
-- Podium Catalog Feed HTTP V1 is **completed, merged and hosted-E2E validated**.
-- BPT2 PR #246 and Podium7 PR #345 are integrated.
-- BPT2 focused feed gate run `36865432643` passed with PostgreSQL + fixture + HTTP smoke.
-- Podium7 cross-repository E2E run `36867723586` passed the real `Podium7 -> authenticated HTTP -> BPT2 -> PostgreSQL` path.
-- Plan 0072 is archived under `docs/exec-plans/completed/`.
-- The 2026-09-16 Podium7/BPT2 topology reassessment is restored on `main`.
-- Listing/favorites accessibility consolidations are merged.
-- GitHub Pages issue #247 is **completed**:
-  - Pages deploys from isolated `gh-pages`;
-  - browser JavaScript PASS observed;
-  - same-origin `probe.json` fetch PASS observed;
-  - Pages remains a static/browser/report surface only.
-- Hosted-staging packaging PR #283 is merged:
-  - .NET 10 / ABP API image builds;
-  - Next.js standalone public-web image builds;
-  - staging image gate passes on exact head.
+- Podium Catalog Feed HTTP V1 is completed and hosted-E2E validated.
+- BPT2 #246 / Podium7 #345 are integrated.
+- BPT2 run `36865432643` and cross-repo run `36867723586` passed.
+- Pages #247 is complete: isolated `gh-pages`, browser JS PASS, same-origin JSON PASS.
+- Staging packaging #283 is merged; #286 fixed its workflow concurrency guard.
+- Security/accessibility cleanup is merged:
+  - #287 protocol-relative `returnTo` hardening;
+  - #288 public-web response headers;
+  - #289 consolidated accessibility baseline.
+- Stale Sentinel/Palette/Bolt drafts were reviewed and closed; branches were preserved.
+- **Open BPT2 PRs at handoff: 0.**
 
-## Next acceptance target
+## Remaining work
 
-The active deployment experiment is **issue #284 — public hosted staging acceptance**.
+### #284 — public hosted staging acceptance
 
-Goal:
+Next deployment target.
 
 ```text
-Browser
-  -> public HTTPS Next.js
-  -> public/private BPT2 API boundary
-  -> PostgreSQL staging
-
-Podium7
-  -> public HTTPS BPT2 Catalog Feed
-  -> Ingestion/Catalog
-  -> PostgreSQL staging
+Browser -> HTTPS Next.js -> BPT2 API -> disposable PostgreSQL
+Podium7 -> HTTPS Catalog Feed -> BPT2 -> disposable PostgreSQL
 ```
 
-The current repository authorizes a **disposable staging database only** because domain module migration authority remains CI/fresh-schema oriented. This does not establish persistent production migration readiness.
+Packaging is ready. External resource creation requires an authorized hosting provider.
 
-Expected sequence:
+Persistent production migration readiness is **not** established; staging DB remains disposable-only.
 
-1. provision disposable PostgreSQL 18 staging;
-2. deploy the BPT2 API image and obtain its real HTTPS origin;
-3. deploy/build the Next.js image with the real public API/Auth/Web origins;
-4. configure CORS, redirect URLs and Buyer/Seller OpenIddict roots for the hosted web origin;
-5. validate the browser-visible marketplace over public HTTPS;
-6. configure Podium7 GitHub Environment `bpt2-staging`;
-7. execute Podium7 external staging acceptance against the deployed BPT2.
+### #275 — larger-cardinality typo benchmark
+
+Independent product-evidence task, not a staging blocker.
+
+Keep substring search as production control until a frozen larger workload proves a trigram candidate improves relevance without violating false-positive/regression bounds and planner/index constraints.
+
+### #160 — main integration policy
+
+`ADMIN_ONLY`.
+
+Desired outcome: block direct writes to `main`, require PR integration, and avoid required-check rules that deadlock path-filtered PRs.
+
+## Cross-repository staging
+
+Podium7 #357 adds the external BPT2 staging acceptance workflow.
+
+Podium7 #358 tracks the current hosted-runner recurrence: exact-head jobs repeatedly fail with `steps:null` before repository execution.
+
+Do not treat this as a code regression and do not merge #357 on stale PASS.
 
 ## Blockers
 
-| ID | Blocker | Evidence | Disposition |
-| --- | --- | --- | --- |
-| BR-02 | main integration policy is still tracked by #160 | repository administration | keep PR-based integration |
-| BR-03 | **Resolved** — Podium7 integration certification | hosted BPT2 + cross-repo E2E PASS | no integration blocker remains |
-| BR-04 | **Resolved** — GitHub Pages isolated probe | #247 + Pages run `37156941398` + owner browser evidence | static-surface experiment complete |
-| BR-05 | external hosted staging resources are not provisioned | #284 | requires a connected/authorized hosting provider account |
-| BR-06 | Podium7 GitHub-hosted runners again fail pre-step | Podium7 #358; PR #357 jobs repeatedly report `steps:null` | external CI allocation blocker; do not infer code failure |
+| ID | State | Disposition |
+| --- | --- | --- |
+| BR-02 | #160 main policy absent | admin-only |
+| BR-03 | integration certification resolved | no blocker |
+| BR-04 | Pages #247 resolved | do not reopen |
+| BR-05 | #284 staging resources absent | provider/account required |
+| BR-06 | Podium7 #358 pre-runner failure | external blocker |
+| BR-07 | #275 larger typo evidence absent | independent benchmark |
 
-## Repository-topology state
+## Topology
 
 - BPT2 backend + `public-web`: ADR 0012 remains `KEEP_MONOREPO`.
-- Podium7 ↔ BPT2 repo colocation remains a separate question.
-- Restored reassessment result remains `INSUFFICIENT_EVIDENCE`; no migration is authorized.
-- Keeping backend/frontend in one repository does not require one deployment unit; #283 packages API and public web independently.
+- Podium7 ↔ BPT2 colocation remains `INSUFFICIENT_EVIDENCE`; no migration authorized.
+- #283 demonstrates monorepo does not require a single deploy unit.
+
+## Resume order
+
+1. Refresh live PR/issue state across **all authors**.
+2. Resume #284 when a hosting provider is connected.
+3. After a real BPT2 HTTPS staging origin exists, configure/run Podium7 #357 subject to #358.
+4. Treat #275 independently; require retained larger-cardinality evidence before production search changes.
+5. Treat #160 as repository administration only.
+6. Do not revive closed cache/performance drafts without current profiling/benchmark evidence.
+7. Do not reopen Pages #247.
 
 ## Canonical links
 
-- [docs/PRODUCT.md](../PRODUCT.md)
-- [docs/QUALITY.md](../QUALITY.md)
-- [docs/LOCAL-DEVELOPMENT.md](../LOCAL-DEVELOPMENT.md)
-- [ADR 0012 — Repository topology](../adr/0012-repository-topology.md)
+- [PRODUCT](../PRODUCT.md)
+- [QUALITY](../QUALITY.md)
+- [LOCAL DEVELOPMENT](../LOCAL-DEVELOPMENT.md)
+- [ADR 0012](../adr/0012-repository-topology.md)
 - [Plan 0072](../exec-plans/completed/0072-podium-catalog-feed-http-v1.md)
-- [Podium7/BPT2 topology reassessment](../audits/2026-09-16-podium7-bpt2-topology-reassessment.md)
 - [Staging packaging](../../deploy/staging/README.md)
-
-## Resume rule
-
-Refresh live GitHub state first.
-
-Do not reopen the Pages probe: it is complete.
-
-Resume with issue #284. Deploy the packaged API + web only into a disposable staging database until durable production migration authority exists. After a real BPT2 staging HTTPS origin exists, run Podium7 PR #357 / the external staging acceptance workflow, subject to the runner blocker tracked in Podium7 #358.
