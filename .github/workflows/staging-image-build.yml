@@ -1,0 +1,42 @@
+name: BPT2 Staging Image Build
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/staging/**'
+      - 'main/BomPraTi/**'
+      - 'modules/**'
+      - 'public-web/**'
+      - '.github/workflows/staging-image-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  staging-images:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Build API staging image
+        run: docker build --file deploy/staging/Dockerfile.api --tag bpt2-api:staging .
+
+      - name: Build public-web staging image
+        run: |
+          docker build \
+            --file deploy/staging/Dockerfile.web \
+            --build-arg BPT_PUBLIC_BASE_URL=https://web.example.invalid \
+            --build-arg NEXT_PUBLIC_BPT_API_BASE_URL=https://api.example.invalid \
+            --build-arg NEXT_PUBLIC_BPT_AUTHORITY=https://api.example.invalid \
+            --tag bpt2-public-web:staging .
+
+      - name: Verify image entrypoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker image inspect bpt2-api:staging >/dev/null
+          docker image inspect bpt2-public-web:staging >/dev/null
+          test "$(docker image inspect --format '{{json .Config.Entrypoint}}' bpt2-api:staging)" = '["dotnet","BomPraTi.dll"]'
+          test "$(docker image inspect --format '{{json .Config.Cmd}}' bpt2-public-web:staging)" = '["node","server.js"]'
