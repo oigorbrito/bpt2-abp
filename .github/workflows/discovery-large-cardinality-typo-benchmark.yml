@@ -1,0 +1,69 @@
+name: BPT2 Discovery Large Cardinality Typo Benchmark
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+on:
+  pull_request:
+    paths:
+      - 'benchmarks/discovery_br_v1.json'
+      - 'tests/BomPraTi.AdvancedDiscoveryBenchmarkFixture/**'
+      - 'tests/BomPraTi.LargeCardinalityTypoBenchmarkFixture/**'
+      - 'modules/catalog/**'
+      - 'modules/marketplace/**'
+      - 'scripts/fresh-migration-gate.sh'
+      - '.github/workflows/discovery-large-cardinality-typo-benchmark.yml'
+      - 'docs/audits/2026-10-03-discovery-large-cardinality-typo.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  large-cardinality-typo:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:18.6-alpine
+        env:
+          POSTGRES_DB: BomPraTi
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d BomPraTi"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      BPT_DB_CONNECTION: Host=localhost;Port=5432;Database=BomPraTi;Username=postgres;Password=postgres
+      BPT_BENCHMARK_POSTGRES_IMAGE: postgres:18.6-alpine
+      BPT_DISCOVERY_BENCHMARK_OUTPUT: artifacts/discovery-baseline-before-large-cardinality-typo.json
+      BPT_LARGE_CARDINALITY_TYPO_OUTPUT: artifacts/discovery-large-cardinality-typo.json
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build frozen discovery fixture
+        run: dotnet build tests/BomPraTi.AdvancedDiscoveryBenchmarkFixture/BomPraTi.AdvancedDiscoveryBenchmarkFixture.csproj --configuration Release
+      - name: Build large-cardinality typo fixture
+        run: dotnet build tests/BomPraTi.LargeCardinalityTypoBenchmarkFixture/BomPraTi.LargeCardinalityTypoBenchmarkFixture.csproj --configuration Release
+      - name: Apply fresh database
+        run: bash scripts/fresh-migration-gate.sh
+      - name: Seed and execute frozen discovery baseline
+        run: dotnet run --project tests/BomPraTi.AdvancedDiscoveryBenchmarkFixture/BomPraTi.AdvancedDiscoveryBenchmarkFixture.csproj --configuration Release --no-build
+      - name: Execute large-cardinality typo benchmark
+        run: dotnet run --project tests/BomPraTi.LargeCardinalityTypoBenchmarkFixture/BomPraTi.LargeCardinalityTypoBenchmarkFixture.csproj --configuration Release --no-build
+      - name: Upload retained evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: discovery-large-cardinality-typo-benchmark
+          path: |
+            artifacts/discovery-baseline-before-large-cardinality-typo.json
+            artifacts/discovery-large-cardinality-typo.json
+          if-no-files-found: error
