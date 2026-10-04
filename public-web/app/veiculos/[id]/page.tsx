@@ -53,15 +53,6 @@ function serializeStructuredData(data: Record<string, unknown>): string {
   return JSON.stringify(data).replace(/</g, "\\u003c");
 }
 
-function vehicleValue(value: string | number | null | undefined): string | null {
-  if (value === null || value === undefined) {
-    return null;
-  }
-
-  const text = typeof value === "number" ? String(value) : value.trim();
-  return text ? text : null;
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const vehicle = await loadVehicle(id);
@@ -140,12 +131,12 @@ export default async function VehicleHubPage({ params, searchParams }: PageProps
           <dl className="facts-grid">
             <div><dt>Marca</dt><dd>{vehicle.brand}</dd></div>
             <div><dt>Modelo</dt><dd>{vehicle.model}</dd></div>
-            {vehicleValue(vehicle.generation) ? <div><dt>Geração</dt><dd>{vehicleValue(vehicle.generation)}</dd></div> : null}
+            {vehicle.generation ? <div><dt>Geração</dt><dd>{vehicle.generation}</dd></div> : null}
             <div><dt>Versão</dt><dd>{vehicle.version}</dd></div>
-            {vehicleValue(vehicle.modelYear) ? <div><dt>Ano do modelo</dt><dd>{vehicleValue(vehicle.modelYear)}</dd></div> : null}
-            {vehicleValue(vehicle.powertrain) ? <div><dt>Motorização</dt><dd>{vehicleValue(vehicle.powertrain)}</dd></div> : null}
-            {vehicleValue(vehicle.transmission) ? <div><dt>Transmissão</dt><dd>{vehicleValue(vehicle.transmission)}</dd></div> : null}
-            {vehicleValue(vehicle.bodyStyle) ? <div><dt>Carroceria</dt><dd>{vehicleValue(vehicle.bodyStyle)}</dd></div> : null}
+            {vehicle.modelYear ? <div><dt>Ano do modelo</dt><dd>{vehicle.modelYear}</dd></div> : null}
+            {vehicle.powertrain ? <div><dt>Motorização</dt><dd>{vehicle.powertrain}</dd></div> : null}
+            {vehicle.transmission ? <div><dt>Transmissão</dt><dd>{vehicle.transmission}</dd></div> : null}
+            {vehicle.bodyStyle ? <div><dt>Carroceria</dt><dd>{vehicle.bodyStyle}</dd></div> : null}
           </dl>
         </section>
 
