@@ -181,32 +181,37 @@ await using (connection)
 static void AssertBaselineRegressionBoundary(string path)
 {
     using var document = JsonDocument.Parse(File.ReadAllText(path));
-    var root = document.RootElement;
-    if (!root.TryGetProperty("queryResults", out var results))
-    {
-        throw new InvalidOperationException("Baseline artifact does not contain queryResults.");
-    }
+    var results = GetProperty(document.RootElement, "QueryResults", "queryResults");
 
     foreach (var result in results.EnumerateArray())
     {
-        var family = result.GetProperty("family").GetString();
+        var family = GetProperty(result, "Family", "family").GetString();
         if (family is not ("exact" or "presentation"))
         {
             continue;
         }
-        foreach (var side in new[] { "catalogMetrics", "publicMetrics" })
+        foreach (var side in new[] { ("CatalogMetrics", "catalogMetrics"), ("PublicMetrics", "publicMetrics") })
         {
-            var metrics = result.GetProperty(side);
-            var mrr = metrics.GetProperty("mrr").GetDouble();
-            var recall = metrics.GetProperty("recall").GetDouble();
-            var fp = metrics.GetProperty("falsePositiveCount").GetInt32();
+            var metrics = GetProperty(result, side.Item1, side.Item2);
+            var mrr = GetProperty(metrics, "Mrr", "mrr").GetDouble();
+            var recall = GetProperty(metrics, "Recall", "recall").GetDouble();
+            var fp = GetProperty(metrics, "FalsePositiveCount", "falsePositiveCount").GetInt32();
             if (Math.Abs(mrr - 1d) > 0.0000001 || Math.Abs(recall - 1d) > 0.0000001 || fp != 0)
             {
-                throw new InvalidOperationException(
-                    $"Regression boundary failed for {result.GetProperty("id").GetString()} / {side}.");
+                var id = GetProperty(result, "Id", "id").GetString();
+                throw new InvalidOperationException($"Regression boundary failed for {id} / {side.Item1}.");
             }
         }
     }
+}
+
+static JsonElement GetProperty(JsonElement element, string pascalName, string camelName)
+{
+    if (element.TryGetProperty(pascalName, out var value) || element.TryGetProperty(camelName, out value))
+    {
+        return value;
+    }
+    throw new InvalidOperationException($"Required JSON property {pascalName} is missing.");
 }
 
 static string Normalize(string value) => value.Trim().ToLowerInvariant().Replace('-', ' ');
