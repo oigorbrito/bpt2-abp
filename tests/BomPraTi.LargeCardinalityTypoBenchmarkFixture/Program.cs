@@ -162,6 +162,23 @@ await using (connection)
         Encoding.UTF8);
 
     Console.WriteLine($"LARGE_CARDINALITY_TYPO_CANDIDATES: {report.TotalCandidateCount}");
+    var controlTargetHits = queryReports.Sum(x => x.ProductionSubstringControl.EligibleTargetCount);
+    var controlTargetTotal = queryReports.Sum(x => x.ProductionSubstringControl.TargetCount);
+    var controlFalsePositives = queryReports.Sum(x => x.ProductionSubstringControl.EligibleNonTargetCount);
+    Console.WriteLine(
+        $"LARGE_CARDINALITY_TYPO_SUBSTRING_CONTROL: eligible_targets={controlTargetHits}/{controlTargetTotal} " +
+        $"eligible_non_targets={controlFalsePositives}");
+    foreach (var plan in planner)
+    {
+        var usesTrigramIndex =
+            plan.Explain.Contains("typo_scale_brand_trgm", StringComparison.Ordinal) ||
+            plan.Explain.Contains("typo_scale_model_trgm", StringComparison.Ordinal) ||
+            plan.Explain.Contains("typo_scale_generation_trgm", StringComparison.Ordinal) ||
+            plan.Explain.Contains("typo_scale_version_trgm", StringComparison.Ordinal);
+        Console.WriteLine(
+            $"LARGE_CARDINALITY_TYPO_PLANNER_{plan.QueryId.ToUpperInvariant().Replace('-', '_')}: " +
+            $"uses_trigram_index={usesTrigramIndex}");
+    }
     foreach (var aggregate in aggregates)
     {
         Console.WriteLine(
