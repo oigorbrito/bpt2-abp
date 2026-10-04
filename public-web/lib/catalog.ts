@@ -51,7 +51,11 @@ export async function getVehicle(id: string): Promise<VehicleRef | null> {
   const response = await fetch(
     new URL(`/api/app/vehicle-catalog/${encodeURIComponent(id)}`, `${serverApiBaseUrl()}/`),
     {
-      cache: "no-store",
+      // ⚡ Bolt: Optimizes page load speeds and reduces backend load by leveraging
+      // Next.js Server-Side Cache for 1 hour. It is safe to cache this endpoint since
+      // the parameter (vehicle ID) has a bounded cardinality and corresponds to known
+      // canonical entities, preventing unbounded cache growth and DOS risks.
+      next: { revalidate: 3600 },
       headers: { Accept: "application/json" },
     },
   );
