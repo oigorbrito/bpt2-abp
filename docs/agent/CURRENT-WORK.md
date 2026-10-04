@@ -18,6 +18,29 @@ Snapshot volatile only.
 - Stale Sentinel/Palette/Bolt drafts were reviewed and closed; branches were preserved.
 - **Open BPT2 PRs at handoff: 0.**
 
+## Pages follow-up decision
+
+The Pages experiment is closed and must not be reopened as a probe task.
+
+The current published BPT2 page is intentionally a minimal static capability probe, not the product frontend. Owner-provided browser evidence on 2026-10-03 confirmed:
+
+- `JavaScript: PASS`;
+- `Same-origin JSON fetch: PASS`;
+- project path `/bpt2-abp/`;
+- probe schema `bpt2.github-pages-static-probe.v1`.
+
+Comparison with `oigorbrito/rpy` established the preferred pattern if BPT2 later needs a visual Pages surface:
+
+- use an explicit GitHub Actions Pages workflow;
+- build a narrow static artifact from approved frontend assets;
+- publish with `upload-pages-artifact` + `deploy-pages`;
+- keep backend/API/PostgreSQL/authenticated Podium transport outside Pages;
+- do not publish the repository tree and do not rely on Pages for runtime behavior.
+
+For BPT2, a future visual Pages surface should be treated as a separate product/documentation task. Prefer either a deliberately static shell derived from `public-web` or a proven Next.js static export subset; do not assume the full Next.js application is Pages-compatible.
+
+This follow-up is **not a blocker for #284** and does not change the backend + `public-web` monorepo decision.
+
 ## Remaining work
 
 ### #284 — public hosted staging acceptance
@@ -75,10 +98,11 @@ Do not treat this as a code regression and do not merge #357 on stale PASS.
 1. Refresh live PR/issue state across **all authors**.
 2. Resume #284 when a hosting provider is connected.
 3. After a real BPT2 HTTPS staging origin exists, configure/run Podium7 #357 subject to #358.
-4. Treat #275 independently; require retained larger-cardinality evidence before production search changes.
-5. Treat #160 as repository administration only.
-6. Do not revive closed cache/performance drafts without current profiling/benchmark evidence.
-7. Do not reopen Pages #247.
+4. Treat any visual Pages work as a separate follow-up: use the RPY-style explicit static-artifact workflow and keep backend/runtime out of Pages.
+5. Treat #275 independently; require retained larger-cardinality evidence before production search changes.
+6. Treat #160 as repository administration only.
+7. Do not revive closed cache/performance drafts without current profiling/benchmark evidence.
+8. Do not reopen Pages #247.
 
 ## Canonical links
 
