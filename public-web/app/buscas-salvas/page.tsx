@@ -220,6 +220,7 @@ export default function SavedSearchesPage() {
                           : "Monitoramento de novas ofertas desligado."}
                       </p>
                       <button
+                        aria-pressed={item.alertEnabled}
                         className="secondary-action"
                         disabled={updatingId === item.id}
                         type="button"
@@ -237,6 +238,7 @@ export default function SavedSearchesPage() {
                           : "Emails por nova oferta desligados."}
                       </p>
                       <button
+                        aria-pressed={item.emailEachNewMatchEnabled}
                         className="secondary-action"
                         disabled={updatingId === item.id}
                         type="button"
