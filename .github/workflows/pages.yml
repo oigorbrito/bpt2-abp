@@ -1,0 +1,77 @@
+name: pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/pages.yml
+      - pages-preview/**
+      - public-web/app/globals.css
+      - public-web/app/page.module.css
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Assemble controlled static artifact
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/bpt2-pages
+          mkdir -p /tmp/bpt2-pages
+          cp pages-preview/index.html /tmp/bpt2-pages/index.html
+          cat public-web/app/globals.css public-web/app/page.module.css pages-preview/preview.css > /tmp/bpt2-pages/app.css
+          touch /tmp/bpt2-pages/.nojekyll
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          payload = {
+              "schema": "bpt2.github-pages-visual-preview.v1",
+              "source_sha": os.environ["GITHUB_SHA"],
+              "static_only": True,
+              "contains_credentials": False,
+              "backend_tested": False,
+              "database_tested": False,
+              "privileged_podium_feed_tested": False,
+          }
+          Path("/tmp/bpt2-pages/probe.json").write_text(
+              json.dumps(payload, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Verify artifact boundary
+        run: |
+          set -euo pipefail
+          test "$(find /tmp/bpt2-pages -maxdepth 1 -type f | wc -l)" -eq 4
+          test -f /tmp/bpt2-pages/index.html
+          test -f /tmp/bpt2-pages/app.css
+          test -f /tmp/bpt2-pages/probe.json
+          test -f /tmp/bpt2-pages/.nojekyll
+          ! grep -Eiq 'BPT_API_BASE_URL|NEXT_PUBLIC_BPT_AUTHORITY|BEARER|PASSWORD|SECRET|TOKEN' /tmp/bpt2-pages/index.html /tmp/bpt2-pages/probe.json
+
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: /tmp/bpt2-pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
