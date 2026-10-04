@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Preview estático da experiência pública Bom Pra Ti.">
+  <title>Bom Pra Ti — Preview</title>
+  <link rel="stylesheet" href="./app.css">
+</head>
+<body>
+  <main class="shell">
+    <aside class="preview-banner" aria-label="Ambiente de preview">
+      <strong>Preview estático</strong>
+      <span>GitHub Pages · sem login, backend ou dados de produção</span>
+      <span id="probe-status" role="status">Verificando publicação…</span>
+    </aside>
+
+    <header class="hero">
+      <p class="eyebrow">Bom Pra Ti</p>
+      <h1>Encontre o próximo carro.</h1>
+      <p class="lede">
+        Explore a linguagem visual do marketplace público. Este preview usa dados sintéticos e não executa consultas no backend.
+      </p>
+    </header>
+
+    <section class="discovery" aria-labelledby="discovery-title">
+      <div class="discoveryHeading">
+        <div>
+          <p class="eyebrow">Descoberta</p>
+          <h2 id="discovery-title">Refine sua busca</h2>
+        </div>
+        <span class="preview-chip">somente visual</span>
+      </div>
+
+      <form class="discoveryForm" id="preview-form">
+        <label class="queryField">
+          Busca
+          <input name="query" placeholder="Ex.: Civic, Corolla, SUV…" type="search">
+        </label>
+        <label>
+          Marca
+          <input name="brand" placeholder="Ex.: Honda">
+        </label>
+        <label>
+          Cidade
+          <input name="city" placeholder="Ex.: Porto Alegre">
+        </label>
+        <label>
+          Ano mínimo
+          <input name="year" inputmode="numeric" placeholder="2020" type="number">
+        </label>
+        <label>
+          Preço máximo
+          <input name="price" inputmode="decimal" placeholder="120000" type="number">
+        </label>
+        <button class="submitFilters" type="submit">Visualizar busca</button>
+      </form>
+      <p class="preview-feedback" id="preview-feedback" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="listing-section" aria-labelledby="listings-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Anúncios</p>
+          <h2 id="listings-title">Veículos em demonstração</h2>
+        </div>
+        <p class="result-count">3 anúncios sintéticos</p>
+      </div>
+
+      <div class="listing-grid">
+        <article class="listing-card">
+          <div class="listing-media demo-media"><span>Imagem de demonstração</span></div>
+          <div class="listing-body">
+            <p class="listing-vehicle">2023 · Automático</p>
+            <h3>Honda Civic Touring</h3>
+            <p class="listing-price">R$ 168.900</p>
+            <p class="listing-location">Porto Alegre · RS</p>
+          </div>
+        </article>
+        <article class="listing-card">
+          <div class="listing-media demo-media"><span>Imagem de demonstração</span></div>
+          <div class="listing-body">
+            <p class="listing-vehicle">2022 · Automático</p>
+            <h3>Toyota Corolla Altis</h3>
+            <p class="listing-price">R$ 142.500</p>
+            <p class="listing-location">Curitiba · PR</p>
+          </div>
+        </article>
+        <article class="listing-card">
+          <div class="listing-media demo-media"><span>Imagem de demonstração</span></div>
+          <div class="listing-body">
+            <p class="listing-vehicle">2024 · Automático</p>
+            <h3>Volkswagen T-Cross Highline</h3>
+            <p class="listing-price">R$ 154.990</p>
+            <p class="listing-location">São Paulo · SP</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <footer class="preview-footer">
+      <p><strong>Limite do experimento:</strong> Pages comprova apenas a superfície estática/browser. Runtime .NET, PostgreSQL, autenticação e Podium7 continuam fora deste deploy.</p>
+    </footer>
+  </main>
+
+  <script>
+    const feedback = document.getElementById("preview-feedback");
+    document.getElementById("preview-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      feedback.textContent = "Preview visual: filtros não consultam o backend.";
+    });
+
+    fetch("./probe.json", { cache: "no-store" })
+      .then((response) => {
+        if (!response.ok) throw new Error("probe HTTP " + response.status);
+        return response.json();
+      })
+      .then((probe) => {
+        const ok = probe.schema === "bpt2.github-pages-visual-preview.v1";
+        document.getElementById("probe-status").textContent =
+          ok ? "JavaScript + probe: PASS" : "Probe: schema inesperado";
+      })
+      .catch(() => {
+        document.getElementById("probe-status").textContent = "Probe: indisponível";
+      });
+  </script>
+</body>
+</html>
